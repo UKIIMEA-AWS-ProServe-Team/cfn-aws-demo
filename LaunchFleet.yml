@@ -30,7 +30,6 @@ Resources:
         Overrides:
             - SubnetId: !Ref PublicSubnet2        
       TargetCapacitySpecification:
-        #SpotTargetCapacity: 1
         DefaultTargetCapacityType: spot
         TotalTargetCapacity: !Ref  NumberOfWorkerNodes
       Type: request
@@ -38,4 +37,4 @@ Resources:
       ExcessCapacityTerminationPolicy: termination
       SpotOptions:
         AllocationStrategy: diversified
-#
+      ReplaceUnhealthyInstances: true
