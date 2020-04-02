@@ -35,4 +35,3 @@ Resources:
         TotalTargetCapacity: !Ref  NumberOfWorkerNodes
       Type: request
       TerminateInstancesWithExpiration: true  # Didn't launch without this in combo with Type: request
-    
