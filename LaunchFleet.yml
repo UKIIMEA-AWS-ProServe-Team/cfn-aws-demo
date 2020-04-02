@@ -37,4 +37,4 @@ Resources:
       ExcessCapacityTerminationPolicy: termination
       SpotOptions:
         AllocationStrategy: diversified
-      ReplaceUnhealthyInstances: true # Fails to create with this option
+      ReplaceUnhealthyInstances: true # Only seems to work with some configs
