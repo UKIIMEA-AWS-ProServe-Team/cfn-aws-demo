@@ -37,4 +37,4 @@ Resources:
       ExcessCapacityTerminationPolicy: termination
       SpotOptions:
         AllocationStrategy: diversified
-      ReplaceUnhealthyInstances: true
+      #ReplaceUnhealthyInstances: true
