@@ -32,9 +32,9 @@ Resources:
       TargetCapacitySpecification:
         DefaultTargetCapacityType: spot
         TotalTargetCapacity: !Ref  NumberOfWorkerNodes
-      Type: request
+      Type: maintain
       TerminateInstancesWithExpiration: true  # Didn't launch without this in combo with Type: request
       ExcessCapacityTerminationPolicy: termination
       SpotOptions:
         AllocationStrategy: diversified
-      #ReplaceUnhealthyInstances: true
+      #ReplaceUnhealthyInstances: true # Fails to create with this option
