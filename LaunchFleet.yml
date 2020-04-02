@@ -21,12 +21,12 @@ Resources:
       LaunchTemplateConfigs: 
       - LaunchTemplateSpecification: 
           LaunchTemplateId: !Ref WorkerNodeLaunchTemplate
-          Version: !GetAtt WorkerNodeLaunchTemplate.LatestVersionNumber
+          Version: 1
         Overrides:
             - SubnetId: !Ref PublicSubnet1
       - LaunchTemplateSpecification:
           LaunchTemplateId: !Ref WorkerNodeLaunchTemplate
-          Version: !GetAtt WorkerNodeLaunchTemplate.LatestVersionNumber
+          Version: 1
         Overrides:
             - SubnetId: !Ref PublicSubnet2        
       TargetCapacitySpecification:
