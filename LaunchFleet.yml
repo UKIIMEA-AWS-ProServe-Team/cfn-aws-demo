@@ -25,7 +25,7 @@ Resources:
         Overrides:
             - SubnetId: !Ref PublicSubnet1
       - LaunchTemplateSpecification:
-          LaunchTemplateId: WorkerNodeLaunchTemplate.LatestVersionNumber
+          LaunchTemplateId: !Ref WorkerNodeLaunchTemplate.LatestVersionNumber
           Version: 1
         Overrides:
             - SubnetId: !Ref PublicSubnet2        
