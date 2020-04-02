@@ -21,11 +21,11 @@ Resources:
       LaunchTemplateConfigs: 
       - LaunchTemplateSpecification: 
           LaunchTemplateId: !Ref WorkerNodeLaunchTemplate
-          Version: 1
+          Version: !GetAtt WorkerNodeLaunchTemplate.LatestVersionNumber
         Overrides:
             - SubnetId: !Ref PublicSubnet1
       - LaunchTemplateSpecification:
-          LaunchTemplateId: !Ref WorkerNodeLaunchTemplate
+          LaunchTemplateId: WorkerNodeLaunchTemplate.LatestVersionNumber
           Version: 1
         Overrides:
             - SubnetId: !Ref PublicSubnet2        
