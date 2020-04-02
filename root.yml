@@ -98,3 +98,7 @@ Resources:
         NumberOfWorkerNodes: !Ref NumberOfWorkerNodes
         WorkerNodeLaunchTemplate: 
           Fn::GetAtt: [WorkerNodeLaunchTemplate, Outputs.WorkerNodeLaunchTemplate]
+        PublicSubnet1:
+          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
+        PublicSubnet2:
+          Fn:GetAtt: [VPCStack, Outputs.PublicSubnet2]
