@@ -101,4 +101,4 @@ Resources:
         PublicSubnet1:
           Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
         PublicSubnet2:
-          Fn:GetAtt: [VPCStack, Outputs.PublicSubnet2]
+          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]

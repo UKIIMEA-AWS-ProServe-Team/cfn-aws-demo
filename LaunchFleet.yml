@@ -23,8 +23,7 @@ Resources:
           LaunchTemplateId: !Ref WorkerNodeLaunchTemplate
           Version: 1
         Overrides:
-          InstanceType: t3a.nano
-          SubnetId: !Ref PublicSubnet1
+            - SubnetId: !Ref PublicSubnet1
       TargetCapacitySpecification:
         SpotTargetCapacity: 1
         DefaultTargetCapacityType: spot
