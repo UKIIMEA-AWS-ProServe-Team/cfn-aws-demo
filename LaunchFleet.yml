@@ -30,7 +30,7 @@ Resources:
         Overrides:
             - SubnetId: !Ref PublicSubnet2        
       TargetCapacitySpecification:
-        SpotTargetCapacity: 1
+        #SpotTargetCapacity: 1
         DefaultTargetCapacityType: spot
         TotalTargetCapacity: !Ref  NumberOfWorkerNodes
       Type: request
