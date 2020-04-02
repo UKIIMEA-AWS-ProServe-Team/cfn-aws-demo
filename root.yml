@@ -74,7 +74,6 @@ Resources:
   #         Fn::GetAtt: [MgrENI, Outputs.MgrENI]
 
   WorkerNodeLaunchTemplate:
-    DependsOn: VPCStack
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/EC2-WorkerLaunchTemplate.yml
@@ -90,7 +89,6 @@ Resources:
           Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
 
   LaunchFleet:
-    DependsOn: WorkerNodeLaunchTemplate
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/LaunchFleet.yml
