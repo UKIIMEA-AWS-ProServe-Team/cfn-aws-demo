@@ -9,6 +9,10 @@ Parameters:
     Type: String
   NumberOfWorkerNodes:
     Type: Number
+  PublicSubnet1:
+    Type: String
+  PublicSubnet2:
+    Type: String
 
 Resources:
   LaunchFleet:
@@ -18,10 +22,13 @@ Resources:
       - LaunchTemplateSpecification: 
           LaunchTemplateId: !Ref WorkerNodeLaunchTemplate
           Version: 1
+        Overrides:
+          InstanceType: t3a.nano
+          SubnetId: !Ref PublicSubnet1
       TargetCapacitySpecification:
         SpotTargetCapacity: 1
         DefaultTargetCapacityType: spot
         TotalTargetCapacity: !Ref  NumberOfWorkerNodes
       Type: request
-      TerminateInstancesWithExpiration: true
+      TerminateInstancesWithExpiration: true  # Didn't launch without this in combo with Type: request
     
