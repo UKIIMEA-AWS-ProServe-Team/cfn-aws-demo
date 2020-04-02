@@ -23,4 +23,5 @@ Resources:
         DefaultTargetCapacityType: spot
         TotalTargetCapacity: !Ref  NumberOfWorkerNodes
       Type: request
+      TerminateInstancesWithExpiration: true
     
