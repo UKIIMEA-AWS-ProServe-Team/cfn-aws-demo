@@ -19,8 +19,8 @@ Resources:
           LaunchTemplateId: !Ref WorkerNodeLaunchTemplate
           Version: 1
       TargetCapacitySpecification:
-        SpotTargetCapacity: 0
-        DefaultTargetCapacityType: on-demand
+        SpotTargetCapacity: 1
+        DefaultTargetCapacityType: spot
         TotalTargetCapacity: !Ref  NumberOfWorkerNodes
       Type: request
     
