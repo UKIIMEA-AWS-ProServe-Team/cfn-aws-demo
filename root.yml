@@ -89,6 +89,7 @@ Resources:
           Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
 
   LaunchFleet:
+    DependsOn: DockerMgr
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/LaunchFleet.yml
