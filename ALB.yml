@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "ALB for Worker Nodes"
+
+Parameters:
+  VPCId:
+    Type: String
+  EnvironmentName:
+    Description: Environment Name for tags
+    Type: String
+  WebIngressSecurityGroup:
+    Type: String
+  PublicSubnet1:
+    Type: String
+  PublicSubnet2:
+    Type: String
+
+Resources:
+  DemoALB: # This is the Application Load Balancer that resides in front of the Worker Nodes
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: DemoALB
+      Scheme: internet-facing
+      SecurityGroups:
+      - !Ref WebIngressSecurityGroup
+      Subnets:
+      - !Ref PublicSubnet1
+      - !Ref PublicSubnet2
+
+  DemoALBTargetGroup: # This is the Target Group used by the DemoALB load balancer
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 15
+      HealthCheckPath: /
+      HealthCheckPort: 80
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Matcher:
+        HttpCode: 200
+      Name: DemoALBTargetGroup
+      Port: 8080
+      Protocol: HTTP
+      UnhealthyThresholdCount: 4
+      VpcId: !Ref VPCId
+
+  DemoALBListener: # This is the ALB Listener used to access the Worker Node Web
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    DependsOn: 
+    - DemoALB 
+    - DemoALBTargetGroup
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn: !Ref DemoALBTargetGroup
+      LoadBalancerArn: !Ref DemoALB
+      Port: 80
+      Protocol: HTTP
+
+  DemoALBListenerRule: # The ALB Listener rule that forwards all traffic destined for the Demo environment to the appropriate Target Group
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    DependsOn: 
+    - DemoALBListener
+    - DemoALBTargetGroup
+    Properties:
+      Actions:
+      - Type: forward
+        TargetGroupArn: !Ref DemoALBTargetGroup
+      Conditions:
+      - Field: path-pattern
+        Values:
+        - "/*"
+      ListenerArn: !Ref DemoALBListener
+      Priority: 1
