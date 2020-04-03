@@ -20,6 +20,10 @@ Resources:
     Properties: 
       LaunchTemplateName: WorkerNodeLaunchTemplate
       LaunchTemplateData:
+        SecurityGroupIds:
+          - !Ref DockerSecurityGroup
+          - !Ref WebIngressSecurityGroup
+          - !Ref SSHIngressSecurityGroup
         CreditSpecification: 
           CpuCredits: standard
         IamInstanceProfile:
