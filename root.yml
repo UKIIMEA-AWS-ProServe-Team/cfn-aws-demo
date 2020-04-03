@@ -54,7 +54,7 @@ Resources:
   MgrENI:
     Type: AWS::CloudFormation::Stack
     Properties: 
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/Master-ENI.yml
+      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/MgrENI.yml
       Parameters:
         EnvironmentName: !Ref EnvironmentName
         DockerSecurityGroup:

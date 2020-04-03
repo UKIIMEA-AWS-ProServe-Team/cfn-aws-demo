@@ -43,7 +43,7 @@ Resources:
             yum install -y docker jq;
             systemctl start docker;
             usermod -aG docker ec2-user;
-            echo $(docker swarm init --advertise-addr 172.31.32.20) >> /tmp/dockerjoin.txt;
+            echo $(docker swarm init --advertise-addr 10.192.10.20) >> /tmp/dockerjoin.txt;
             cat /tmp/dockerjoin.txt | sed 's/.*command: //' | sed 's/ To add.*$//' >> /tmp/join.txt;
             aws ssm put-parameter --name /ClusterJoinCmd --value "$(cat /tmp/join.txt)" --type String --region eu-west-2 --overwrite;
       Tags:
