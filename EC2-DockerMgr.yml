@@ -25,7 +25,7 @@ Resources:
   WaitHandle:
     Type: AWS::CloudFormation::WaitConditionHandle
     Properties:
-
+    
   WaitCondition:
     Type: AWS::CloudFormation::WaitCondition
     Properties: 
