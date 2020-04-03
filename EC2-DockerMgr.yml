@@ -22,16 +22,16 @@ Resources:
       Tags:
         Name: !Sub ${EnvironmentName}-SwarmJoinCmd
 
-    WaitHandle:
-      Type: AWS::CloudFormation::WaitConditionHandle
-      Properties:
+  WaitHandle:
+    Type: AWS::CloudFormation::WaitConditionHandle
+    Properties:
 
-    WaitCondition:
-      Type: AWS::CloudFormation::WaitCondition
-      Properties: 
-        Count: 1
-        Handle: !Ref WaitHandle
-        Timeout: 720
+  WaitCondition:
+    Type: AWS::CloudFormation::WaitCondition
+    Properties: 
+      Count: 1
+      Handle: !Ref WaitHandle
+      Timeout: 720
 
   MyEC2Instance:
     Type: AWS::EC2::Instance
@@ -57,7 +57,7 @@ Resources:
             cat /tmp/dockerjoin.txt | sed 's/.*command: //' | sed 's/ To add.*$//' >> /tmp/join.txt;
             aws ssm put-parameter --name /ClusterJoinCmd --value "$(cat /tmp/join.txt)" --type String --region eu-west-2 --overwrite;
             usermod -aG docker ec2-user;
-            /opt/aws/bin/cfn-signal -e 0 -r \"Instance Creation Complete\" " !Ref" WaitHandle
+            /opt/aws/bin/cfn-signal -e 0 -r \"Instance Creation Complete\" " !Ref" WaitHandle;
       Tags:
         -
           Key: Name
