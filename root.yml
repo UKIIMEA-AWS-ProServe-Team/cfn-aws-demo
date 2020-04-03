@@ -51,27 +51,27 @@ Resources:
         PrivateSubnet1CIDR: !Ref PrivateSubnet1CIDR
         PrivateSubnet2CIDR: !Ref PrivateSubnet2CIDR
 
-  # MgrENI:
-  #   Type: AWS::CloudFormation::Stack
-  #   Properties: 
-  #     TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/Master-ENI.yml
-  #     Parameters:
-  #       EnvironmentName: !Ref EnvironmentName
-  #       DockerSecurityGroup:
-  #         Fn::GetAtt: [VPCStack, Outputs.DockerSecurityGroup]
-  #       SSHIngressSecurityGroup:
-  #         Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
-  #       PublicSubnet1:
-  #         Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
+  MgrENI:
+    Type: AWS::CloudFormation::Stack
+    Properties: 
+      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/Master-ENI.yml
+      Parameters:
+        EnvironmentName: !Ref EnvironmentName
+        DockerSecurityGroup:
+          Fn::GetAtt: [VPCStack, Outputs.DockerSecurityGroup]
+        SSHIngressSecurityGroup:
+          Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
+        PublicSubnet1:
+          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
 
-  # DockerMgr:
-  #   Type: AWS::CloudFormation::Stack
-  #   Properties: 
-  #     TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/EC2-DockerMgr.yml
-  #     Parameters:
-  #       EnvironmentName: !Ref EnvironmentName
-  #       MgrENI:
-  #         Fn::GetAtt: [MgrENI, Outputs.MgrENI]
+  DockerMgr:
+    Type: AWS::CloudFormation::Stack
+    Properties: 
+      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/EC2-DockerMgr.yml
+      Parameters:
+        EnvironmentName: !Ref EnvironmentName
+        MgrENI:
+          Fn::GetAtt: [MgrENI, Outputs.MgrENI]
 
   WorkerNodeLaunchTemplate:
     Type: AWS::CloudFormation::Stack
@@ -114,3 +114,4 @@ Resources:
           Fn::GetAtt: [VPCStack, Outputs.WebIngressSecurityGroup]
         VPCId:
            Fn::GetAtt: [VPCStack, Outputs.VPC]
+        EnvironmentName: !Ref EnvironmentName
