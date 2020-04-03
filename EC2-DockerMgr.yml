@@ -24,6 +24,9 @@ Resources:
 
   DockerMgr:
     Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT10M    
     Properties:
       NetworkInterfaces:
         - NetworkInterfaceId: !Ref MgrENI
@@ -46,11 +49,7 @@ Resources:
             cat /tmp/dockerjoin.txt | sed 's/.*command: //' | sed 's/ To add.*$//' >> /tmp/join.txt;
             aws ssm put-parameter --name /ClusterJoinCmd --value "$(cat /tmp/join.txt)" --type String --region eu-west-2 --overwrite;
             usermod -aG docker ec2-user;
-            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource DockerMgr --region ${AWS::Region};
-    # CreationPolicy:
-    #   ResourceSignal:
-    #     Count: 1
-    #     Timeout: PT10M
+            /opt/aws/bin/cfn-signal --exit-code 0 --resource DockerMgr --region ${AWS::Region} --stack ${AWS::StackName};
       Tags:
         -
           Key: Name
