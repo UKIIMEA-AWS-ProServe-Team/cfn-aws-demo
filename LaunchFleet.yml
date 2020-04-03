@@ -1,6 +1,3 @@
-# Seems to have an issue CFN can't delete instant fleet despite running
-# with admin role it advises insufficient privilege for "describe-fleet"
-# and "delete-fleet" But ... other Types do not launch!
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Docker Worker Node Launch Template"
 
@@ -36,5 +33,5 @@ Resources:
       TerminateInstancesWithExpiration: true  # Didn't launch without this in combo with Type: request
       ExcessCapacityTerminationPolicy: termination
       SpotOptions:
-        AllocationStrategy: diversified
+        AllocationStrategy: diversified # Spread across subnets
       ReplaceUnhealthyInstances: true # Only seems to work with some configs
