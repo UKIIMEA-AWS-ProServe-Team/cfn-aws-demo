@@ -56,7 +56,7 @@ Resources:
             cat /tmp/dockerjoin.txt | sed 's/.*command: //' | sed 's/ To add.*$//' >> /tmp/join.txt;
             aws ssm put-parameter --name /ClusterJoinCmd --value "$(cat /tmp/join.txt)" --type String --region eu-west-2 --overwrite;
             usermod -aG docker ec2-user;
-            /opt/aws/bin/cfn-signal -e 0 -r \"Instance Creation Complete\" !Ref WaitHandle;
+            /opt/aws/bin/cfn-signal -e 0 -r \"Instance Creation Complete\" ${WaitHandle};
       Tags:
         -
           Key: Name
