@@ -28,15 +28,15 @@ Parameters:
     Type: String
     Default: 10.192.11.0/24
 
-  PrivateSubnet1CIDR:
-    Description: "** DO NOT CHANGE - USED AS CONSTANT **"
-    Type: String
-    Default: 10.192.20.0/24
+  # PrivateSubnet1CIDR:
+  #   Description: "** DO NOT CHANGE - USED AS CONSTANT **"
+  #   Type: String
+  #   Default: 10.192.20.0/24
 
-  PrivateSubnet2CIDR:
-    Description: "** DO NOT CHANGE - USED AS CONSTANT **"
-    Type: String
-    Default: 10.192.21.0/24
+  # PrivateSubnet2CIDR:
+  #   Description: "** DO NOT CHANGE - USED AS CONSTANT **"
+  #   Type: String
+  #   Default: 10.192.21.0/24
 
 Resources:
   VPCStack:
@@ -48,8 +48,8 @@ Resources:
         VpcCIDR: !Ref VpcCIDR
         PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
         PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
-        PrivateSubnet1CIDR: !Ref PrivateSubnet1CIDR
-        PrivateSubnet2CIDR: !Ref PrivateSubnet2CIDR
+        # PrivateSubnet1CIDR: !Ref PrivateSubnet1CIDR
+        # PrivateSubnet2CIDR: !Ref PrivateSubnet2CIDR
 
   MgrENI:
     Type: AWS::CloudFormation::Stack

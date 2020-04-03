@@ -42,6 +42,10 @@ Resources:
       Protocol: HTTP
       UnhealthyThresholdCount: 4
       VpcId: !Ref VPCId
+      Tags:
+        -
+          Key: Name
+          Value: !Sub ${EnvironmentName}-ALBTargetGroup
 
   DemoALBListener: # This is the ALB Listener used to access the Worker Node Web
     Type: AWS::ElasticLoadBalancingV2::Listener
