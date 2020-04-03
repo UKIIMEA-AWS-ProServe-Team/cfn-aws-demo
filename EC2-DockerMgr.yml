@@ -47,10 +47,10 @@ Resources:
             aws ssm put-parameter --name /ClusterJoinCmd --value "$(cat /tmp/join.txt)" --type String --region eu-west-2 --overwrite;
             usermod -aG docker ec2-user;
             /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource DockerMgr --region ${AWS::Region};
-    CreationPolicy:
-      ResourceSignal:
-        Count: 1
-        Timeout: PT10M
+    # CreationPolicy:
+    #   ResourceSignal:
+    #     Count: 1
+    #     Timeout: PT10M
       Tags:
         -
           Key: Name
