@@ -5,7 +5,7 @@ Parameters:
   VPCId:
     Type: String
   EnvironmentName:
-    Description: Environment Name for tags
+    Description: Environment Name
     Type: String
   WebIngressSecurityGroup:
     Type: String
@@ -15,10 +15,10 @@ Parameters:
     Type: String
 
 Resources:
-  DemoALB: # This is the Application Load Balancer that resides in front of the Worker Nodes
+  ALB: # This is the Application Load Balancer that resides in front of the Worker Nodes
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: DemoALB
+      Name: !Sub ${EnvironmentName}ALB
       Scheme: internet-facing
       SecurityGroups:
       - !Ref WebIngressSecurityGroup
@@ -26,7 +26,7 @@ Resources:
       - !Ref PublicSubnet1
       - !Ref PublicSubnet2
 
-  DemoALBTargetGroup: # This is the Target Group used by the DemoALB load balancer
+  ALBTargetGroup: # This is the Target Group used by the ALB load balancer
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       HealthCheckIntervalSeconds: 15
@@ -37,7 +37,7 @@ Resources:
       HealthyThresholdCount: 2
       Matcher:
         HttpCode: 200
-      Name: DemoALBTargetGroup
+      Name: !Sub ${EnvironmentName}ALBTargetGroup
       Port: 8080
       Protocol: HTTP
       UnhealthyThresholdCount: 4
@@ -45,33 +45,33 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: !Sub ${EnvironmentName}-ALBTargetGroup
+          Value: !Sub ${EnvironmentName}ALBTargetGroup
 
-  DemoALBListener: # This is the ALB Listener used to access the Worker Node Web
+  ALBListener: # This is the ALB Listener used to access the Worker Node Web
     Type: AWS::ElasticLoadBalancingV2::Listener
     DependsOn: 
-    - DemoALB 
-    - DemoALBTargetGroup
+    - ALB 
+    - ALBTargetGroup
     Properties:
       DefaultActions:
       - Type: forward
-        TargetGroupArn: !Ref DemoALBTargetGroup
-      LoadBalancerArn: !Ref DemoALB
+        TargetGroupArn: !Ref ALBTargetGroup
+      LoadBalancerArn: !Ref ALB
       Port: 80
       Protocol: HTTP
 
-  DemoALBListenerRule: # The ALB Listener rule that forwards all traffic destined for the Demo environment to the appropriate Target Group
+  ALBListenerRule: # The ALB Listener rule that forwards all traffic destined for the environment to the appropriate Target Group
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     DependsOn: 
-    - DemoALBListener
-    - DemoALBTargetGroup
+    - ALBListener
+    - ALBTargetGroup
     Properties:
       Actions:
       - Type: forward
-        TargetGroupArn: !Ref DemoALBTargetGroup
+        TargetGroupArn: !Ref ALBTargetGroup
       Conditions:
       - Field: path-pattern
         Values:
         - "/*"
-      ListenerArn: !Ref DemoALBListener
+      ListenerArn: !Ref ALBListener
       Priority: 1
