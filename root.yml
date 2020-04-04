@@ -1,11 +1,8 @@
+
 # Demo: Not for production use, no security validation
 AWSTemplateFormatVersion: "2010-09-09"
 
 Parameters:
-  EnvironmentName:
-    Description: Use a unique environment name to identify resources created
-    Type: String
-    Default: Demo
 
   NumberOfWorkerNodes:
     Description: Number of worker nodes requested
@@ -28,35 +25,24 @@ Parameters:
     Type: String
     Default: 10.192.11.0/24
 
-  # PrivateSubnet1CIDR:
-  #   Description: "** DO NOT CHANGE - USED AS CONSTANT **"
-  #   Type: String
-  #   Default: 10.192.20.0/24
-
-  # PrivateSubnet2CIDR:
-  #   Description: "** DO NOT CHANGE - USED AS CONSTANT **"
-  #   Type: String
-  #   Default: 10.192.21.0/24
-
 Resources:
+
   VPCStack:
     Type: AWS::CloudFormation::Stack
     Properties :
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/vpc-nested.yml
       Parameters:
-        EnvironmentName: !Ref EnvironmentName
+        EnvironmentName: !Ref AWS::StackName
         VpcCIDR: !Ref VpcCIDR
         PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
         PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
-        # PrivateSubnet1CIDR: !Ref PrivateSubnet1CIDR
-        # PrivateSubnet2CIDR: !Ref PrivateSubnet2CIDR
 
   MgrENI:
     Type: AWS::CloudFormation::Stack
     Properties: 
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/MgrENI.yml
       Parameters:
-        EnvironmentName: !Ref EnvironmentName
+        EnvironmentName: !Ref AWS::StackName
         DockerSecurityGroup:
           Fn::GetAtt: [VPCStack, Outputs.DockerSecurityGroup]
         SSHIngressSecurityGroup:
@@ -69,7 +55,7 @@ Resources:
     Properties: 
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/EC2-DockerMgr.yml
       Parameters:
-        EnvironmentName: !Ref EnvironmentName
+        EnvironmentName: !Ref AWS::StackName
         MgrENI:
           Fn::GetAtt: [MgrENI, Outputs.MgrENI]
 
@@ -78,7 +64,7 @@ Resources:
     Properties:
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/EC2-WorkerLaunchTemplate.yml
       Parameters:
-        EnvironmentName: !Ref EnvironmentName
+        EnvironmentName: !Ref AWS::StackName
         DockerSecurityGroup:
           Fn::GetAtt: [VPCStack, Outputs.DockerSecurityGroup]
         SSHIngressSecurityGroup:
@@ -115,4 +101,4 @@ Resources:
           Fn::GetAtt: [VPCStack, Outputs.WebIngressSecurityGroup]
         VPCId:
            Fn::GetAtt: [VPCStack, Outputs.VPC]
-        EnvironmentName: !Ref EnvironmentName
+        EnvironmentName: !Ref AWS::StackName
