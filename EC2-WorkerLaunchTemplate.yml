@@ -3,7 +3,6 @@ Description: "Docker Worker Node Launch Template"
 
 Parameters:
   EnvironmentName:
-    Description: Environment name for tags from root
     Type: String
   DockerSecurityGroup:
     Type: String
@@ -18,7 +17,7 @@ Resources:
   WorkerNodeLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
     Properties: 
-      LaunchTemplateName: WorkerNodeLaunchTemplate
+      LaunchTemplateName: !Sub ${EnvironmentName}WorkerNodeLaunchTemplate
       LaunchTemplateData:
         SecurityGroupIds:
           - !Ref DockerSecurityGroup
@@ -51,14 +50,13 @@ Resources:
               yum install -y docker jq;
               systemctl start docker;
               usermod -aG docker ec2-user;
-              $(aws ssm get-parameter --name /ClusterJoinCmd --region eu-west-2 | jq -r '.Parameter.Value');      
-      LaunchTemplateName: !Sub ${EnvironmentName}-WorkerTemplate
+              $(aws ssm get-parameter --name /SwarmJoinCmd --region eu-west-2 | jq -r '.Parameter.Value');
 
 
   WorkerRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: EC2-SSM-Params-Worker-Role
+      RoleName: !Sub ${EnvironmentName}-EC2-SSM-Params-Worker-Role
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -72,7 +70,7 @@ Resources:
       MaxSessionDuration: 3600 # Role active for 1 hour
       Path: /
       Policies: 
-        - PolicyName: EC2-SSM-Params-WorkerAccess
+        - PolicyName: !Sub ${EnvironmentName}-EC2-SSM-Params-WorkerAccess
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -90,10 +88,10 @@ Resources:
     DependsOn: WorkerRole
     Type: AWS::IAM::InstanceProfile
     Properties: 
-      InstanceProfileName: Read-SSM-Params-Profile
+      InstanceProfileName: !Sub ${EnvironmentName}-Read-SSM-Params-Profile
       Path: /
       Roles: 
-        - EC2-SSM-Params-Worker-Role
+        - ${EnvironmentName}-EC2-SSM-Params-Worker-Role
 
 Outputs:
   WorkerNodeLaunchTemplate:

@@ -3,7 +3,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 
 Parameters:
   EnvironmentName:
-    Description: Environment Name for tagging
+    Description: Environment Name
     Type: String
   DockerSecurityGroup:
     Type: String

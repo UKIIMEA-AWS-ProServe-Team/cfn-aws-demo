@@ -7,7 +7,7 @@ Description:  This template deploys a VPC, with a pair of public and private sub
 
 Parameters:
   EnvironmentName:
-    Description: Environment Name for tags
+    Description: Environment Name
     Type: String
 
   VpcCIDR:

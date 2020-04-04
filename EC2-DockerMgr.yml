@@ -7,15 +7,14 @@ Parameters:
     Description: Static private IP address for Mgr Node
     Type: String
   EnvironmentName:
-    Description: Environment Name for tags
     Type: String
 
 Resources:
-  ClusterJoinCmd:
+  SwarmJoinCmd:
     Type: AWS::SSM::Parameter
     Properties: 
       Description: "Param to store command to join worker node to Docker Swarm"
-      Name: ClusterJoinCmd
+      Name: !Sub ${EnvironmentName}-SwarmJoinCmd
       Tier: Standard
       Type: String
       Value: "Temp value because null not accepted"
@@ -47,7 +46,7 @@ Resources:
             systemctl start docker;
             echo $(docker swarm init --advertise-addr 10.192.10.20) >> /tmp/dockerjoin.txt;
             cat /tmp/dockerjoin.txt | sed 's/.*command: //' | sed 's/ To add.*$//' >> /tmp/join.txt;
-            aws ssm put-parameter --name /ClusterJoinCmd --value "$(cat /tmp/join.txt)" --type String --region eu-west-2 --overwrite;
+            aws ssm put-parameter --name /SwarmJoinCmd --value "$(cat /tmp/join.txt)" --type String --region eu-west-2 --overwrite;
             usermod -aG docker ec2-user;
             /opt/aws/bin/cfn-signal --exit-code 0 --resource DockerMgr --region ${AWS::Region} --stack ${AWS::StackName};
       Tags:
@@ -58,7 +57,7 @@ Resources:
   MgrRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: EC2-SSM-Params-Role
+      RoleName: !Sub ${EnvironmentName}-EC2-SSM-Params-Role
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -72,7 +71,7 @@ Resources:
       MaxSessionDuration: 3600 # Role active for 1 hour
       Path: /
       Policies: 
-        - PolicyName: EC2-SSM-Params-Access
+        - PolicyName: !Sub ${EnvironmentName}-EC2-SSM-Params-Access
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -93,7 +92,7 @@ Resources:
     DependsOn: MgrRole
     Type: AWS::IAM::InstanceProfile
     Properties: 
-      InstanceProfileName: Access-SSM-Params-Profile
+      InstanceProfileName: !Sub ${EnvironmentName}-Access-SSM-Params-Profile
       Path: /
       Roles: 
-        - EC2-SSM-Params-Role
+        - !Sub ${EnvironmentName}-EC2-SSM-Params-Role
