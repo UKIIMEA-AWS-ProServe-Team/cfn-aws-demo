@@ -1,27 +1,215 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: Tiny Test Instance
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: Can contain only ASCII characters.
+  InstanceType:
+    Description: WebServer EC2 instance type
+    Type: String
+    Default: t3a.nano
+    AllowedValues:
+    - m4.large
+    - m4.xlarge
+    - m4.2xlarge
+    - m4.4xlarge
+    - m4.10xlarge
+    - m4.16xlarge
+    - m5.large
+    - m5.xlarge
+    - m5.2xlarge
+    - m5.4xlarge
+    - m5.8xlarge
+    - m5.12xlarge
+    - m5.16xlarge
+    - m5.24xlarge
+    - m5.metal
+    - m5a.large
+    - m5a.xlarge
+    - m5a.2xlarge
+    - m5a.4xlarge
+    - m5a.8xlarge
+    - m5a.12xlarge
+    - m5a.16xlarge
+    - m5a.24xlarge
+    - t2.nano
+    - t2.micro
+    - t2.small
+    - t2.medium
+    - t2.large
+    - t2.xlarge
+    - t2.2xlarge
+    - t3.nano
+    - t3.micro
+    - t3.small
+    - t3.medium
+    - t3.large
+    - t3.xlarge
+    - t3.2xlarge
+    - t3a.nano
+    - t3a.micro
+    - t3a.small
+    - t3a.medium
+    - t3a.large
+    - t3a.xlarge
+    - t3a.2xlarge
+    ConstraintDescription: must be a valid EC2 instance type.
+  SSHLocation:
+    Description: The IP address range that can be used to SSH to the EC2 instances
+    Type: String
+    MinLength: '9'
+    MaxLength: '18'
+    Default: 0.0.0.0/0
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+Mappings:
+  AWSInstanceType2Arch:
+    t2.nano:
+    m4.large:
+        Arch: HVM
+    m4.xlarge:
+        Arch: HVM
+    m4.2xlarge:
+        Arch: HVM
+    m4.4xlarge:
+        Arch: HVM
+    m4.10xlarge:
+        Arch: HVM
+    m4.16xlarge:
+        Arch: HVM
+    m5.large:
+        Arch: HVM
+    m5.xlarge:
+        Arch: HVM
+    m5.2xlarge:
+        Arch: HVM
+    m5.4xlarge:
+        Arch: HVM
+    m5.8xlarge:
+        Arch: HVM
+    m5.12xlarge:
+        Arch: HVM
+    m5.16xlarge:
+        Arch: HVM
+    m5.24xlarge:
+        Arch: HVM
+    m5.metal:
+        Arch: HVM
+    m5a.large:
+        Arch: HVM
+    m5a.xlarge:
+        Arch: HVM
+    m5a.2xlarge:
+        Arch: HVM
+    m5a.4xlarge:
+        Arch: HVM
+    m5a.8xlarge:
+        Arch: HVM
+    m5a.12xlarge:
+        Arch: HVM
+    m5a.16xlarge:
+        Arch: HVM
+    m5a.24xlarge:
+        Arch: HVM
+    t2.nano:
+        Arch: HVM
+    t2.micro:
+        Arch: HVM
+    t2.small:
+        Arch: HVM
+    t2.medium:
+        Arch: HVM
+    t2.large:
+        Arch: HVM
+    t2.xlarge:
+        Arch: HVM
+    t2.2xlarge:
+        Arch: HVM
+    t3.nano:
+        Arch: HVM
+    t3.micro:
+        Arch: HVM
+    t3.small:
+        Arch: HVM
+    t3.medium:
+        Arch: HVM
+    t3.large:
+        Arch: HVM
+    t3.xlarge:
+        Arch: HVM
+    t3.2xlarge:
+        Arch: HVM
+    t3a.nano:
+        Arch: HVM
+    t3a.micro:
+        Arch: HVM
+    t3a.small:
+        Arch: HVM
+    t3a.medium:
+        Arch: HVM
+    t3a.large:
+        Arch: HVM
+    t3a.xlarge:
+        Arch: HVM
+    t3a.2xlarge:
+        Arch: HVM
+  AWSRegionArch2AMI:
+    us-east-1:
+      HVM: ami-0ff8a91507f77f867
+    us-west-2:
+      HVM: ami-0ce21b51cb31a48b8
+    us-west-1:
+      HVM: ami-09a7fe78668f1e2c0
+    eu-west-1:
+      HVM: ami-04d5cc9b88f9d1d39
+    eu-west-2:
+      HVM: ami-0cb790308f7591fa6
+    eu-west-3:
+      HVM: ami-07eda9385feb1e969
+    eu-central-1:
+      HVM: ami-0ec1ba09723e5bfac
 Resources:
-  MyEC2Instance:
+  WebServerInstance:
     Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT10M
     Properties:
-      ImageId: ami-0389b2a3c4948b1a0
-      InstanceType: t3a.nano
-      KeyName: automation
-      CreditSpecification:
-        CPUCredits: standard
+      ImageId: !FindInMap
+        - AWSRegionArch2AMI
+        - !Ref 'AWS::Region'
+        - !FindInMap
+          - AWSInstanceType2Arch
+          - !Ref 'InstanceType'
+          - Arch
+      SecurityGroupIds: 
+        - !Ref WebServerSecurityGroup
+      InstanceType: !Ref 'InstanceType'
+      KeyName: !Ref 'KeyName'
       UserData:
         Fn::Base64:
           !Sub |
             #!/bin/bash -xe
+            yum -y update;
             yum install -y docker;
             systemctl start docker;
             usermod -aG docker ec2-user;
             docker run -d -p 80:80 --name nginx nginx;
-            touch /home/ec2-user/userdata_ran;
+            /opt/aws/bin/cfn-signal --exit-code 0 --resource WebServerInstance --region ${AWS::Region} --stack ${AWS::StackName};
       Tags:
         -
           Key: Name
-          Value: Demo
-      SecurityGroupIds:
-        - sg-d91becb0
-        - sg-0ffca9793f9a69a66      
+          Value: !Ref AWS::StackName
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP access via port 80
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: !Ref 'SSHLocation'

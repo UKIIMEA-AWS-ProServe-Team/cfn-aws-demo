@@ -25,7 +25,7 @@ Resources:
     Type: AWS::EC2::Instance
     CreationPolicy:
       ResourceSignal:
-        Timeout: PT10M    
+        Timeout: PT10M
     Properties:
       NetworkInterfaces:
         - NetworkInterfaceId: !Ref MgrENI

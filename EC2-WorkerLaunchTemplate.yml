@@ -36,13 +36,13 @@ Resources:
             Tags:
               - 
                 Key: Name
-                Value: !Sub ${EnvironmentName}-WorkerNode
+                Value: !Sub ${EnvironmentName}
           -
             ResourceType: volume
             Tags:
               -
                 Key: Name
-                Value: !Sub ${EnvironmentName}-WorkerNode
+                Value: !Sub ${EnvironmentName}
         UserData:
           Fn::Base64:
             !Sub |
@@ -82,7 +82,7 @@ Resources:
       Tags: 
         -
           Key: Name
-          Value: !Sub ${EnvironmentName}-TempSSMRole
+          Value: !Sub ${EnvironmentName}
   
   WorkerProfile:
     DependsOn: WorkerRole
