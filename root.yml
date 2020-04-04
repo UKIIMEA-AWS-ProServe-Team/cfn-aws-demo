@@ -3,7 +3,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 
 Parameters:
   EnvironmentName:
-    Description: An environment name that is prefixed to resource names
+    Description: A unique environment name that is prefixed to resource names
     Type: String
     Default: Demo
 
