@@ -42,7 +42,7 @@ Resources:
   WorkerRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: EC2-SSM-Params-Worker-Role
+      RoleName: !Sub EC2-SSM-Role-${AWS::StackName}
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -56,7 +56,7 @@ Resources:
       MaxSessionDuration: 3600 # Role active for 1 hour
       Path: /
       Policies: 
-        - PolicyName: EC2-SSM-Params-WorkerAccess
+        - PolicyName: !Sub EC2-SSM-Policy-${AWS::StackName}
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -74,10 +74,10 @@ Resources:
     DependsOn: WorkerRole
     Type: AWS::IAM::InstanceProfile
     Properties: 
-      InstanceProfileName: Read-SSM-Params-Profile
+      InstanceProfileName: !Sub Read-SSM-${AWS::StackName}
       Path: /
       Roles: 
-        - EC2-SSM-Params-Worker-Role
+        - !Ref WorkerRole
 
   LaunchFleet:
     Type: AWS::EC2::EC2Fleet
@@ -87,13 +87,39 @@ Resources:
           LaunchTemplateId: !Ref WorkerNodeLaunchTemplate
           Version: 1
         Overrides:
-            - SubnetId: !Ref PublicSubnet1
+          - 
+            InstanceType: t3a.micro
+            MaxPrice: 0.1
+            Priority: 1
+          - 
+            InstanceType: t3.micro
+            MaxPrice: 0.1
+            Priority: 2
+          - 
+            InstanceType: t3a.small
+            MaxPrice: 0.1
+            Priority: 3        
+          - 
+            InstanceType: t3.small
+            MaxPrice: 0.1
+            Priority: 4
+          - 
+            InstanceType: m5.large
+            MaxPrice: 0.1
+            Priority: 5
+          - 
+            InstanceType: c5.large
+            MaxPrice: 0.1
+            Priority: 6                     
       TargetCapacitySpecification:
+        TotalTargetCapacity: 2
+        #OnDemandTargetCapacity: 1       # Something screwey happens when I add this line. Only ever creates 1 spot!
         DefaultTargetCapacityType: spot
-        TotalTargetCapacity: 1
       Type: maintain
       TerminateInstancesWithExpiration: true  # Didn't launch without this in combo with Type: request
       ExcessCapacityTerminationPolicy: termination
       SpotOptions:
         AllocationStrategy: diversified # Spread across subnets
+      OnDemandOptions:
+        MaxTotalPrice: 0.5
       ReplaceUnhealthyInstances: true # Only seems to work with some configs
