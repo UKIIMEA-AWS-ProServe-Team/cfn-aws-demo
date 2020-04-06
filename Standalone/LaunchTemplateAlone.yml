@@ -1,22 +1,11 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Docker Worker Node Launch Template"
 
-Parameters:
-  EnvironmentName:
-    Description: Environment name for tags from root
-    Type: String
-  # DockerSecurityGroup:
-  #   Type: String
-  # SSHIngressSecurityGroup:
-  #   Type: String
-  # WebIngressSecurityGroup:
-  #   Type: String
-
 Resources:
   WorkerNodeLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
     Properties: 
-      LaunchTemplateName: !Sub ${EnvironmentName}-WorkerNodeTemplate
+      LaunchTemplateName: !Sub ${AWS::StackName}-Template
       LaunchTemplateData: 
         CapacityReservationSpecification: 
           CapacityReservationPreference: none
@@ -37,22 +26,18 @@ Resources:
             Tags:
               - 
                 Key: Name
-                Value: !Sub ${EnvironmentName}-WorkerNode
+                Value: !Ref AWS::StackName
           -
             ResourceType: volume
             Tags:
               -
                 Key: Name
-                Value: !Sub ${EnvironmentName}-WorkerNode
+                Value: !Ref AWS::StackName
         UserData:
           Fn::Base64:
             !Sub |
               #!/bin/bash -xe
-              yum install -y docker jq;
-              systemctl start docker;
-              usermod -aG docker ec2-user;
-              $(aws ssm get-parameter --name /ClusterJoinCmd --region eu-west-2 | jq -r '.Parameter.Value');      
-      LaunchTemplateName: !Sub ${EnvironmentName}-WorkerTemplate
+              yum update -y 
 
   WorkerRole:
     Type: AWS::IAM::Role
@@ -83,7 +68,7 @@ Resources:
       Tags: 
         -
           Key: Name
-          Value: !Sub ${EnvironmentName}-TempSSMRole
+          Value: !Ref AWS::StackName
   
   WorkerProfile:
     DependsOn: WorkerRole
@@ -93,3 +78,22 @@ Resources:
       Path: /
       Roles: 
         - EC2-SSM-Params-Worker-Role
+
+  LaunchFleet:
+    Type: AWS::EC2::EC2Fleet
+    Properties:
+      LaunchTemplateConfigs: 
+      - LaunchTemplateSpecification: 
+          LaunchTemplateId: !Ref WorkerNodeLaunchTemplate
+          Version: 1
+        Overrides:
+            - SubnetId: !Ref PublicSubnet1
+      TargetCapacitySpecification:
+        DefaultTargetCapacityType: spot
+        TotalTargetCapacity: 1
+      Type: maintain
+      TerminateInstancesWithExpiration: true  # Didn't launch without this in combo with Type: request
+      ExcessCapacityTerminationPolicy: termination
+      SpotOptions:
+        AllocationStrategy: diversified # Spread across subnets
+      ReplaceUnhealthyInstances: true # Only seems to work with some configs
