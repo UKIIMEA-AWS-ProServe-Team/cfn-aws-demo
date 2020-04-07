@@ -1,3 +1,9 @@
+# The "LaunchFleet" section has a lot of issues. As of 7-04-20 the AWS Docs are incomplete. Raised issue with AWS
+# and they admitted they are working on mapping out all the dependencies and interactions. Some of the AWS example
+# snippets do not work in many circumstances due to un-documented dependencies
+#
+# This template also defines roles to read parameters from SSM
+#
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Docker Worker Node Launch Template"
 
@@ -89,37 +95,35 @@ Resources:
         Overrides:
           - 
             InstanceType: t3a.micro
-            MaxPrice: 0.1
             Priority: 1
           - 
             InstanceType: t3.micro
-            MaxPrice: 0.1
             Priority: 2
           - 
             InstanceType: t3a.small
-            MaxPrice: 0.1
             Priority: 3        
           - 
             InstanceType: t3.small
-            MaxPrice: 0.1
             Priority: 4
           - 
             InstanceType: m5.large
-            MaxPrice: 0.1
             Priority: 5
           - 
             InstanceType: c5.large
-            MaxPrice: 0.1
             Priority: 6                     
       TargetCapacitySpecification:
         TotalTargetCapacity: 2
-        #OnDemandTargetCapacity: 1       # Something screwey happens when I add this line. Only ever creates 1 spot!
+        #OnDemandTargetCapacity: 1 
+        SpotTargetCapacity: 2
         DefaultTargetCapacityType: spot
+      # Type: instant seems to be required to mix spot and on-demand. This is contrary to AWS Documentation.
+      # NOTE: instances created with "Type: instant" cannot be deleted via CFN
       Type: maintain
       TerminateInstancesWithExpiration: true  # Didn't launch without this in combo with Type: request
-      ExcessCapacityTerminationPolicy: termination
+      ExcessCapacityTerminationPolicy: termination # Can't use with Type: instant
       SpotOptions:
         AllocationStrategy: diversified # Spread across subnets
+        MaxTotalPrice: 0.1
       OnDemandOptions:
-        MaxTotalPrice: 0.5
-      ReplaceUnhealthyInstances: true # Only seems to work with some configs
+        MaxTotalPrice: 0.1
+      ReplaceUnhealthyInstances: true # Only works with Type: maintain
