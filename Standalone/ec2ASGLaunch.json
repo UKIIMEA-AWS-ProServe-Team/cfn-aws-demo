@@ -14,8 +14,7 @@
         "Description" : "WebServer EC2 instance type",
         "Type" : "String",
         "Default" : "t3a.nano",
-        "AllowedValues" : [ "t3a.nano", "t3a.micro", "t3a.small", "t3a.medium", "t3a.large", "t3.nano", "t3.micro", "t3.small", "t3.medium", "t3.large", "t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large", "m5.large", "m4.large", "c5.large", "c4.large"]
-  ,
+        "AllowedValues" : [ "t3a.nano", "t3a.micro", "t3a.small", "t3a.medium", "t3a.large", "t3.nano", "t3.micro", "t3.small", "t3.medium", "t3.large", "t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large", "m5.large", "m4.large", "c5.large", "c4.large"],
         "ConstraintDescription" : "Must be a valid Linux2 EC2 instance type in UK, Europe or US."
       },
   
@@ -78,9 +77,8 @@
       "EC2Instance" : {
         "Type" : "AWS::EC2::Instance",
         "Metadata" : {
-          "Comment1" : "Configure the bootstrap helpers to install the Apache Web Server and PHP",
-          "Comment2" : "Save website content to /var/www/html/index.php",
-  
+          "Comment1" : "Configure the bootstrap helpers to install Jenkins",
+    
           "AWS::CloudFormation::Init" : {
             "configSets" : {
               "Install" : [ "Install" ]
@@ -91,22 +89,65 @@
                 "yum" : {
                   "jenkins"      : []
                 }
+              }
               },
+              "files" : {
+              "/etc/cfn/cfn-hup.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "[main]\n",
+                  "stack=", { "Ref" : "AWS::StackId" }, "\n",
+                  "region=", { "Ref" : "AWS::Region" }, "\n"
+                ]]},
+                "mode"    : "000400",
+                "owner"   : "root",
+                "group"   : "root"
+              },
+
+              "/etc/cfn/hooks.d/cfn-auto-reloader.conf" : {
+                "content": { "Fn::Join" : ["", [
+                  "[cfn-auto-reloader-hook]\n",
+                  "triggers=post.update\n",
+                  "path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init\n",
+                  "action=/opt/aws/bin/cfn-init -v ",
+                  "         --stack ", { "Ref" : "AWS::StackName" },
+                  "         --resource LaunchConfig ",
+                  "         --region ", { "Ref" : "AWS::Region" }, "\n",
+                  "runas=root\n"
+                ]]}
+              }
+            },              
               "services" : {
                 "sysvinit" : {  
-                  "httpd"   : { "enabled" : "true", "ensureRunning" : "true" }
+                  "jenkins"   : { "enabled" : "true", "ensureRunning" : "true" },
+                  "cfn-hup" : { "enabled" : "true", "ensureRunning" : "true",
+                    "files" : ["/etc/cfn/cfn-hup.conf", "/etc/cfn/hooks.d/cfn-auto-reloader.conf"]}
+                  }
                 }
               }
-            }             
+            },             
         "Properties" : {
           "InstanceType" : { "Ref" : "InstanceType" },
           "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
           "KeyName" : { "Ref" : "KeyName" },
           "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
                             { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+          "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+            "#!/bin/bash -xe\n",
+            "yum update -y aws-cfn-bootstrap\n",
+
+            "/opt/aws/bin/cfn-init -v ",
+            "         --stack ", { "Ref" : "AWS::StackName" },
+            "         --resource LaunchConfig ",
+            "         --region ", { "Ref" : "AWS::Region" }, "\n",
+
+            "/opt/aws/bin/cfn-signal -e $? ",
+            "         --stack ", { "Ref" : "AWS::StackName" },
+            "         --resource WebServerGroup ",
+            "         --region ", { "Ref" : "AWS::Region" }, "\n"
+        ]]}},
           "Tags" : [ 
             { "Key" : "Name",
-              "Value" : { "Fn::Sub": "${AWS::StackName}" }
+              "Value" : { "Fn::Sub": "${AWS::StackName}-Jenkins" }
             }
           ]
         }
@@ -124,29 +165,10 @@
           } ],
           "Tags" : [
             { "Key" : "Name",
-              "Value" : { "Fn::Sub": "${AWS::StackName}" }
+              "Value" : { "Fn::Sub": "${AWS::StackName}-JenkinsSG" }
             }
-          ],
+          ]
         }
       }
-    },
-  
-    "Outputs" : {
-      "InstanceId" : {
-        "Description" : "InstanceId of the newly created EC2 instance",
-        "Value" : { "Ref" : "EC2Instance" }
-      },
-      "AZ" : {
-        "Description" : "Availability Zone of the newly created EC2 instance",
-        "Value" : { "Fn::GetAtt" : [ "EC2Instance", "AvailabilityZone" ] }
-      },
-      "PublicDNS" : {
-        "Description" : "Public DNSName of the newly created EC2 instance",
-        "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicDnsName" ] }
-      },
-      "PublicIP" : {
-        "Description" : "Public IP address of the newly created EC2 instance",
-        "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicIp" ] }
-      }
     }
-  }
+  }  
