@@ -31,7 +31,8 @@ Resources:
             yum -y update;
             wget -O /etc/yum.repos.d/jenkins.repo  http://pkg.jenkins-ci.org/redhat/jenkins.repo;
             rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key;
-            service jenkins start;
+            yum install jenkins -y;
+            service jenkins start; # not working need systemctl command
             /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
 
   JenkinsSecurityGroup:
