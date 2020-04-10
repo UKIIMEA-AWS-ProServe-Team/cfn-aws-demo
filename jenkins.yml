@@ -17,6 +17,7 @@ Resources:
       ImageId: ami-0389b2a3c4948b1a0
       InstanceType: t3a.small
       KeyName: automation
+      IamInstanceProfile: !Ref JenkinsProfile      
       NetworkInterfaces:
          - NetworkInterfaceId: !Ref JenkinsENI
            DeviceIndex: 0
@@ -35,6 +36,7 @@ Resources:
             yum install jenkins -y;
             systemctl start jenkins.service;
             systemctl enable jenkins.service;
+            aws ssm put-parameter --name /JenkinsPasswd --value "$(cat /var/lib/jenkins/secrets/initialAdminPassword)" --type String --region eu-west-2 --overwrite;
             /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
 
   JenkinsSecurityGroup:
@@ -67,6 +69,49 @@ Resources:
         -
           Key: Name
           Value: JenkinsENI
+
+  JenkinsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: Jenkins-Role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Description: Role for EC2 to read/write SSM Parameters via CLI
+      MaxSessionDuration: 3600 # Role active for 1 hour (Implies no scaling after an hour - spot instances!)
+      Path: /
+      Policies: 
+        - PolicyName: Jenkins-Policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:PutParameter
+                  - ssm:AddTagsToResource
+                  - ssm:GetParameters
+                  - ssm:GetParameter
+                  - ssm:RemoveTagsFromResource
+                Resource: arn:aws:ssm:*:*:parameter/*
+      Tags: 
+        -
+          Key: Name
+          Value: JenkinsSSMRole
+  
+  JenkinsProfile:
+    DependsOn: JenkinsRole
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      InstanceProfileName: Jenkins-Profile
+      Path: /
+      Roles: 
+        - Jenkins-Role  
 
 Outputs:
 
