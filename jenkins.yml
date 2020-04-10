@@ -36,7 +36,8 @@ Resources:
             rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key;
             yum install jenkins -y;
             systemctl start jenkins.service;
-            sleep 5s;
+            sleep 15s;
+            cat /var/lib/jenkins/secrets/initialAdminPassword;
             aws ssm put-parameter --name /JenkinsPasswd --value "$(cat /var/lib/jenkins/secrets/initialAdminPassword)" --type String --region eu-west-2 --overwrite;
             /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
 
