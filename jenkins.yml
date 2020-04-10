@@ -11,9 +11,9 @@ Resources:
   JenkinsInstance:
     DependsOn: JenkinsPasswd
     Type: AWS::EC2::Instance
-    # CreationPolicy:
-    #   ResourceSignal:
-    #     Timeout: PT10M
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT10M
     Properties:
       ImageId: ami-0389b2a3c4948b1a0
       InstanceType: t3a.small
@@ -36,8 +36,9 @@ Resources:
             rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key;
             yum install jenkins -y;
             systemctl start jenkins.service;
-            # aws ssm put-parameter --name /JenkinsPasswd --value "$(sudo cat /var/lib/jenkins/secrets/initialAdminPassword)" --type String --region eu-west-2 --overwrite;
-            # /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
+            sleep 5s;
+            aws ssm put-parameter --name /JenkinsPasswd --value "$(sudo cat /var/lib/jenkins/secrets/initialAdminPassword)" --type String --region eu-west-2 --overwrite;
+            /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
 
   JenkinsSecurityGroup:
     Type: AWS::EC2::SecurityGroup
