@@ -58,7 +58,7 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: !Sub ${EnvironmentName}-JenkinsENI
+          Value: !Sub ${AWS::StackName}-JenkinsENI
 
 Outputs:
 
