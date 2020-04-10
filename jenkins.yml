@@ -34,7 +34,7 @@ Resources:
   JenkinsSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Enable HTTP access via port 8080, 8443 + SSH
+      GroupDescription: Enable HTTP access via port 8080, 8443
       VpcId: !Ref VPCId
       SecurityGroupIngress:
         - IpProtocol: tcp
