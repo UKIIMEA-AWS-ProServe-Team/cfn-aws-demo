@@ -37,7 +37,6 @@ Resources:
             yum install jenkins -y;
             systemctl start docker;
             systemctl enable docker;
-            groupadd docker;
             usermod -aG docker jenkins;
             usermod -aG docker ec2-user;
             systemctl start jenkins.service;
