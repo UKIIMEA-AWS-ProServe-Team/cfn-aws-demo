@@ -4,6 +4,8 @@ Parameters:
     Type: String
   SSHIngressSecurityGroup:
     Type: String
+  VPC:
+    Type: String
 
 Resources:
   JenkinsInstance:
@@ -12,7 +14,16 @@ Resources:
       ResourceSignal:
         Timeout: PT10M
     Properties:
-      ImageId: ami-0389b2a3c4948b1a0
+      ImageId: ami-0389b2a3c4948b1a0  JenkinsENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties: 
+      GroupSet: 
+        - !GetAtt JenkinsSecurityGroup.GroupId
+      SubnetId: !Ref PublicSubnet2
+      Tags:
+        -
+          Key: Name
+          Value: !Sub ${AWS::StackName}-JenkinsENI
       InstanceType: t3a.nano
       KeyName: automation
       NetworkInterfaces:
@@ -33,6 +44,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable HTTP access via port 8080, 8443 + SSH
+      VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: '8080'
@@ -53,6 +65,7 @@ Resources:
     Properties: 
       GroupSet: 
         - !GetAtt JenkinsSecurityGroup.GroupId
+        - !Ref SSHIngressSecurityGroup
       SubnetId: !Ref PublicSubnet2
       Tags:
         -

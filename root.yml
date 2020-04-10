@@ -111,4 +111,6 @@ Resources:
         PublicSubnet2:
           Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]
         SSHIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]        
+          Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
+        VPCId:
+          Fn::GetAtt: [VPCStack, Outputs.VPC]
