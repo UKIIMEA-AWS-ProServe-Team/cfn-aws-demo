@@ -31,12 +31,18 @@ Resources:
           !Sub |
             #!/bin/bash -xe
             yum -y update;
-            amazon-linux-extras install java-openjdk11 -y;
+            amazon-linux-extras install java-openjdk11 docker -y;
             wget -O /etc/yum.repos.d/jenkins.repo  http://pkg.jenkins-ci.org/redhat/jenkins.repo;
             rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key;
             yum install jenkins -y;
+            systemctl start docker;
+            systemctl enable docker;
+            groupadd docker;
+            usermod -aG docker jenkins;
+            usermod -aG docker ec2-user;
             systemctl start jenkins.service;
-            sleep 15s;
+            systemctl enable jenkins.service;
+            sleep 10s;
             cat /var/lib/jenkins/secrets/initialAdminPassword;
             aws ssm put-parameter --name /JenkinsPasswd --value "$(cat /var/lib/jenkins/secrets/initialAdminPassword)" --type String --region eu-west-2 --overwrite;
             /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
