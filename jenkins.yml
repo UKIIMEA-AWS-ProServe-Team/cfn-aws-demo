@@ -53,7 +53,6 @@ Resources:
     Properties: 
       GroupSet: 
         - !GetAtt JenkinsSecurityGroup.GroupId
-        - !Ref SSHIngressSecurityGroup
       SubnetId: !Ref PublicSubnet2
       Tags:
         -
