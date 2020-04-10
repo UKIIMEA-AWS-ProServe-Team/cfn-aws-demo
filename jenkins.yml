@@ -52,7 +52,7 @@ Resources:
     Type: AWS::EC2::NetworkInterface
     Properties: 
       GroupSet: 
-        - !Ref JenkinsSecurityGroup
+        - !GetAtt JenkinsSecurityGroup.GroupId
         - !Ref SSHIngressSecurityGroup
       SubnetId: !Ref PublicSubnet2
       Tags:
