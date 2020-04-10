@@ -11,9 +11,9 @@ Resources:
   JenkinsInstance:
     DependsOn: JenkinsPasswd
     Type: AWS::EC2::Instance
-    CreationPolicy:
-      ResourceSignal:
-        Timeout: PT10M
+    # CreationPolicy:
+    #   ResourceSignal:
+    #     Timeout: PT10M
     Properties:
       ImageId: ami-0389b2a3c4948b1a0
       InstanceType: t3a.small
