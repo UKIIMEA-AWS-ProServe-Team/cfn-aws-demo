@@ -9,6 +9,7 @@ Parameters:
 
 Resources:
   JenkinsInstance:
+    DependsOn: JenkinsPasswd
     Type: AWS::EC2::Instance
     CreationPolicy:
       ResourceSignal:
@@ -111,9 +112,19 @@ Resources:
       InstanceProfileName: Jenkins-Profile
       Path: /
       Roles: 
-        - Jenkins-Role  
+        - Jenkins-Role
+
+  JenkinsPasswd:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: JenkinsPasswd
+      Type: String
+      Value: "Temp Value"
 
 Outputs:
 
   JenkinsPubIp:
-    Value: !GetAtt JenkinsInstance.PublicIp           
+    Value: !GetAtt JenkinsInstance.PublicIp
+
+  JenkinsPasswd:
+    Value: !GetAtt JenkinsPasswd.Value      
