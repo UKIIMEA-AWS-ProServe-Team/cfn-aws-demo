@@ -29,7 +29,7 @@ Resources:
           !Sub |
             #!/bin/bash -xe
             yum -y update;
-            /opt/aws/bin/cfn-signal --exit-code 0 --resource WebServerInstance --region ${AWS::Region} --stack ${AWS::StackName};
+            /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
 
   JenkinsSecurityGroup:
     Type: AWS::EC2::SecurityGroup
