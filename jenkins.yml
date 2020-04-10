@@ -4,7 +4,7 @@ Parameters:
     Type: String
   SSHIngressSecurityGroup:
     Type: String
-  VPC:
+  VPCId:
     Type: String
 
 Resources:
@@ -30,7 +30,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable HTTP access via port 8080, 8443 + SSH
-      VpcId: !Ref VPC
+      VpcId: !Ref VPCId
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: '8080'
