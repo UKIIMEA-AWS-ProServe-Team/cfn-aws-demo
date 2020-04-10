@@ -15,7 +15,7 @@ Resources:
         Timeout: PT10M
     Properties:
       ImageId: ami-0389b2a3c4948b1a0
-      InstanceType: t3a.nano
+      InstanceType: t3a.small
       KeyName: automation
       NetworkInterfaces:
          - NetworkInterfaceId: !Ref JenkinsENI
@@ -29,6 +29,7 @@ Resources:
           !Sub |
             #!/bin/bash -xe
             yum -y update;
+            amazon-linux-extras install java-openjdk11 -y;
             wget -O /etc/yum.repos.d/jenkins.repo  http://pkg.jenkins-ci.org/redhat/jenkins.repo;
             rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key;
             yum install jenkins -y;
