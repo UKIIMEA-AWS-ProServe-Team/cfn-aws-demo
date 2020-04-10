@@ -24,8 +24,7 @@ Resources:
         Fn::Base64:
           !Sub |
             #!/bin/bash -xe
-            yum -y update;JenkinsENI:
-    Type: AWS::EC2::NetworkInterface
+            yum -y update
 
   JenkinsSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -41,7 +40,6 @@ Resources:
           FromPort: '8443'
           ToPort: '8443'
           CidrIp: 0.0.0.0/0          
-
       Tags:
         -
           Key: Name
