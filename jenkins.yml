@@ -22,7 +22,7 @@ Resources:
       KeyName: automation
       # IamInstanceProfile: !Ref JenkinsProfile      
       NetworkInterface:
-        - NetworkInterfaceId: JenkinsENI
+        - NetworkInterfaceId: !Ref JenkinsENI
           DeviceIndex: 0
       Tags:
         -
