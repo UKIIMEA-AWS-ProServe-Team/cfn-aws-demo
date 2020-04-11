@@ -16,10 +16,9 @@ Resources:
       ResourceSignal:
         Timeout: PT10M
     Properties:
-      ImageId: ami-042c1d8a601ebed1f #ami-0389b2a3c4948b1a0
+      ImageId: ami-042c1d8a601ebed1f
       InstanceType: t3a.small
       KeyName: automation
-      # IamInstanceProfile: !Ref JenkinsProfile      
       NetworkInterfaces:
         - NetworkInterfaceId: !Ref JenkinsENI
           DeviceIndex: 0
@@ -33,19 +32,6 @@ Resources:
             #!/bin/bash -xe
             yum -y update;
             ENVNAME=${EnvironmentName};
-            # amazon-linux-extras install java-openjdk11 docker -y;
-            # wget -O /etc/yum.repos.d/jenkins.repo  http://pkg.jenkins-ci.org/redhat/jenkins.repo;
-            # rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key;
-            # yum install jenkins -y;
-            # systemctl start docker;
-            # systemctl enable docker;
-            # usermod -aG docker jenkins;
-            # usermod -aG docker ec2-user;
-            # systemctl start jenkins.service;
-            # systemctl enable jenkins.service;
-            # sleep 15s;
-            # cat /var/lib/jenkins/secrets/initialAdminPassword;
-            # aws ssm put-parameter --name /JenkinsPasswd --value "$(cat /var/lib/jenkins/secrets/initialAdminPassword)" --type String --region eu-west-2 --overwrite;
             /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
 
   JenkinsSecurityGroup:
@@ -79,60 +65,7 @@ Resources:
           Key: Name
           Value: !Sub ${EnvironmentName}-JenkinsENI
 
-  # JenkinsRole:
-  #   Type: AWS::IAM::Role
-  #   Properties:
-  #     RoleName: !Sub ${EnvironmentName}-Jenkins-Role
-  #     AssumeRolePolicyDocument:
-  #       Version: 2012-10-17
-  #       Statement:
-  #         - Effect: Allow
-  #           Principal:
-  #             Service:
-  #             - ec2.amazonaws.com
-  #           Action:
-  #             - 'sts:AssumeRole'
-  #     Description: Role for EC2 to read/write SSM Parameters via CLI
-  #     MaxSessionDuration: 3600 # Role active for 1 hour (Implies no scaling after an hour - spot instances!)
-  #     Path: /
-  #     Policies: 
-  #       - PolicyName: !Sub ${EnvironmentName}-Jenkins-Policy
-  #         PolicyDocument:
-  #           Version: 2012-10-17
-  #           Statement:
-  #             - Effect: Allow
-  #               Action:
-  #                 - ssm:PutParameter
-  #                 - ssm:AddTagsToResource
-  #                 - ssm:GetParameters
-  #                 - ssm:GetParameter
-  #                 - ssm:RemoveTagsFromResource
-  #               Resource: arn:aws:ssm:*:*:parameter/*
-  #     Tags: 
-  #       -
-  #         Key: Name
-  #         Value: !Sub ${EnvironmentName}-JenkinsSSMRole
-  
-  # JenkinsProfile:
-  #   DependsOn: JenkinsRole
-  #   Type: AWS::IAM::InstanceProfile
-  #   Properties: 
-  #     InstanceProfileName: !Sub ${EnvironmentName}-Jenkins-Profile
-  #     Path: /
-  #     Roles: 
-  #       - Jenkins-Role
-
-  # JenkinsPasswd:
-  #   Type: AWS::SSM::Parameter
-  #   Properties: 
-  #     Name: JenkinsPasswd
-  #     Type: String
-  #     Value: "Temp Value"
-
 Outputs:
 
   JenkinsPubIp:
     Value: !GetAtt JenkinsInstance.PublicIp
-
-  # JenkinsPasswd:
-  #   Value: !GetAtt JenkinsPasswd.Value

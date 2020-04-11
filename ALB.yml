@@ -37,15 +37,15 @@ Resources:
       HealthyThresholdCount: 2
       Matcher:
         HttpCode: 200
-      Name: !Sub ${EnvironmentName}ALBTargetGroup
-      Port: 8080
+      Name: !Sub ${EnvironmentName}ALBTgtGroup
+      Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 4
       VpcId: !Ref VPCId
       Tags:
         -
           Key: Name
-          Value: !Sub ${EnvironmentName}ALBTargetGroup
+          Value: !Sub ${EnvironmentName}ALBTgtGroup
 
   ALBListener: # This is the ALB Listener used to access the Worker Node Web
     Type: AWS::ElasticLoadBalancingV2::Listener
