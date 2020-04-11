@@ -11,7 +11,6 @@ Parameters:
 
 Resources:
   JenkinsInstance:
-    DependsOn: JenkinsPasswd
     Type: AWS::EC2::Instance
     CreationPolicy:
       ResourceSignal:
@@ -33,6 +32,7 @@ Resources:
           !Sub |
             #!/bin/bash -xe
             yum -y update;
+            ENVNAME= Ref: EnvironmentName;
             # amazon-linux-extras install java-openjdk11 docker -y;
             # wget -O /etc/yum.repos.d/jenkins.repo  http://pkg.jenkins-ci.org/redhat/jenkins.repo;
             # rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key;
