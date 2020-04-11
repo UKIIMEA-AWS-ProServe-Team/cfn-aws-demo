@@ -41,7 +41,6 @@ Resources:
         Fn::Base64:
           !Sub |
             #!/bin/bash -xe
-            yum -y update;
             yum install -y docker jq;
             systemctl start docker;
             echo $(docker swarm init --advertise-addr 10.192.10.20) >> /tmp/dockerjoin.txt;
