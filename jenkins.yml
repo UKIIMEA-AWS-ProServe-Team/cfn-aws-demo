@@ -20,7 +20,7 @@ Resources:
       InstanceType: t3a.small
       KeyName: automation
       # IamInstanceProfile: !Ref JenkinsProfile      
-      NetworkInterface:
+      NetworkInterfaces:
         - NetworkInterfaceId: !Ref JenkinsENI
           DeviceIndex: 0
       Tags:
