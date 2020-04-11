@@ -1,5 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
+  EnvironmentName:
+    Type: String
   PublicSubnet2:
     Type: String
   SSHIngressSecurityGroup:
@@ -19,13 +21,7 @@ Resources:
       InstanceType: t3a.small
       KeyName: automation
       IamInstanceProfile: !Ref JenkinsProfile      
-      NetworkInterfaces:
-         - NetworkInterfaceId: !Ref JenkinsENI
-           DeviceIndex: 0
-      Tags:
-        -
-          Key: Name
-          Value: !Sub ${AWS::StackName}-Jenkins
+      NetworkInt8443 !Sub ${EnvironmentName}-Jenkins
       UserData:
         Fn::Base64:
           !Sub |
@@ -43,7 +39,7 @@ Resources:
             systemctl enable jenkins.service;
             sleep 15s;
             cat /var/lib/jenkins/secrets/initialAdminPassword;
-            aws ssm put-parameter --name /JenkinsPasswd --value "$(cat /var/lib/jenkins/secrets/initialAdminPassword)" --type String --region eu-west-2 --overwrite;
+            aws ssm put-parameter --name /${EnvironmentName}-JenkinsPasswd --value "$(cat /var/lib/jenkins/secrets/initialAdminPassword)" --type String --region eu-west-2 --overwrite;
             /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
 
   JenkinsSecurityGroup:
@@ -63,7 +59,7 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: jenkins-sg
+          Value: !Sub ${EnvironmentName}-jenkins-sg
 
   JenkinsENI:
     Type: AWS::EC2::NetworkInterface
@@ -75,12 +71,12 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: JenkinsENI
+          Value: !Sub ${EnvironmentName}-JenkinsENI
 
   JenkinsRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: Jenkins-Role
+      RoleName: !Sub ${EnvironmentName}-Jenkins-Role
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -94,7 +90,7 @@ Resources:
       MaxSessionDuration: 3600 # Role active for 1 hour (Implies no scaling after an hour - spot instances!)
       Path: /
       Policies: 
-        - PolicyName: Jenkins-Policy
+        - PolicyName: !Sub ${EnvironmentName}-Jenkins-Policy
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -109,13 +105,13 @@ Resources:
       Tags: 
         -
           Key: Name
-          Value: JenkinsSSMRole
+          Value: !Sub ${EnvironmentName}-JenkinsSSMRole
   
   JenkinsProfile:
     DependsOn: JenkinsRole
     Type: AWS::IAM::InstanceProfile
     Properties: 
-      InstanceProfileName: Jenkins-Profile
+      InstanceProfileName: !Sub ${EnvironmentName}-Jenkins-Profile
       Path: /
       Roles: 
         - Jenkins-Role
@@ -123,7 +119,7 @@ Resources:
   JenkinsPasswd:
     Type: AWS::SSM::Parameter
     Properties: 
-      Name: JenkinsPasswd
+      Name: !Sub ${EnvironmentName}-JenkinsPasswd
       Type: String
       Value: "Temp Value"
 

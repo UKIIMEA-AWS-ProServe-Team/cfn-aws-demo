@@ -101,7 +101,7 @@ Resources:
         -
           Key: "Name"
           Value: !Join ["-", [!Ref EnvironmentName, no-ingress-sg]]
-      GroupName: "no-ingress-sg"
+      GroupName: !Sub ${EnvironmentName}-no-ingress-sg
       GroupDescription: "Security group with no ingress rule"
       VpcId: !Ref VPC
       
@@ -114,7 +114,7 @@ Resources:
           Value: !Join ["-", [!Ref EnvironmentName, ssh-sg]]
       VpcId: !Ref VPC
       GroupDescription: "Security Group to allow SSH Ingress"
-      GroupName: "SSH-ingress-sg"
+      GroupName: !Sub ${EnvironmentName}-SSH-ingress-sg
       SecurityGroupIngress:
         - CidrIp: 0.0.0.0/0
           IpProtocol: tcp
@@ -131,7 +131,7 @@ Resources:
           Value: !Join ["-", [!Ref EnvironmentName, web-sg]]
       VpcId: !Ref VPC
       GroupDescription: "Security Group to allow common Web Ports"
-      GroupName: Web-ingress-sg
+      GroupName: !Sub ${EnvironmentName}-Web-ingress-sg
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -155,10 +155,10 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: !Join ["-", [!Ref EnvironmentName, docker-sg]]
+          Value: !Sub ${EnvironmentName}-docker-sg
       VpcId: !Ref VPC
       GroupDescription: "Security Group to allow Docker Ports"
-      GroupName: docker-sg
+      GroupName: !Sub ${EnvironmentName}-docker-sg
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 2376

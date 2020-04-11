@@ -4,6 +4,11 @@ AWSTemplateFormatVersion: "2010-09-09"
 
 Parameters:
 
+  EnvironmentName:
+    Description: A UNIQUE name for the environment
+    Type: String
+    Default: DEMO
+
   NumberOfWorkerNodes:
     Description: Number of worker nodes requested
     Type: Number
@@ -32,7 +37,7 @@ Resources:
     Properties :
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/vpc-nested.yml
       Parameters:
-        EnvironmentName: !Ref AWS::StackName
+        EnvironmentName: !Ref EnvironmentName
         VpcCIDR: !Ref VpcCIDR
         PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
         PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
@@ -108,6 +113,8 @@ Resources:
     Properties: 
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/jenkins.yml
       Parameters:
+        EnvironmentName:
+          !Ref EnvironmentName
         PublicSubnet2:
           Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]
         SSHIngressSecurityGroup:
