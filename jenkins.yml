@@ -39,7 +39,7 @@ Resources:
             systemctl enable jenkins.service;
             sleep 15s;
             cat /var/lib/jenkins/secrets/initialAdminPassword;
-            aws ssm put-parameter --name /${EnvironmentName}-JenkinsPasswd --value "$(cat /var/lib/jenkins/secrets/initialAdminPassword)" --type String --region eu-west-2 --overwrite;
+            aws ssm put-parameter --name /JenkinsPasswd --value "$(cat /var/lib/jenkins/secrets/initialAdminPassword)" --type String --region eu-west-2 --overwrite;
             /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
 
   JenkinsSecurityGroup:
@@ -119,7 +119,7 @@ Resources:
   JenkinsPasswd:
     Type: AWS::SSM::Parameter
     Properties: 
-      Name: !Sub ${EnvironmentName}-JenkinsPasswd
+      Name: JenkinsPasswd
       Type: String
       Value: "Temp Value"
 
