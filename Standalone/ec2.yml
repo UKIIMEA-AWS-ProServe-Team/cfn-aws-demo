@@ -71,7 +71,7 @@ Resources:
         -
           Key: Name
           Value: !Ref AWS::StackName
-  WebServerSecurityGroup:
+  MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "Enable Access: SSH + Jenkins"
