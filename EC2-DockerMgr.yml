@@ -99,4 +99,4 @@ Resources:
 Outputs:
 
   JenkinsPubIp:
-    Value: !GetAtt DockerManager.PublicIp
+    Value: !GetAtt DockerMgr.PublicIp
