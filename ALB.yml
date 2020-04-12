@@ -75,3 +75,8 @@ Resources:
         - "/*"
       ListenerArn: !Ref ALBListener
       Priority: 1
+
+Outputs:
+  ALBAddr:
+    Description: Load balancer DNS address
+    Value: !GetAtt ALB.DNSName

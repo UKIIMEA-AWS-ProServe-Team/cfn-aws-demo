@@ -95,3 +95,8 @@ Resources:
       Path: /
       Roles: 
         - !Sub ${EnvironmentName}-EC2-SSM-Params-Role
+
+Outputs:
+
+  JenkinsPubIp:
+    Value: !GetAtt DockerManager.PublicIp
