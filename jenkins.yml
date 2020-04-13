@@ -16,7 +16,7 @@ Resources:
       ResourceSignal:
         Timeout: PT10M
     Properties:
-      ImageId: ami-01c26cb60c5ca1278
+      ImageId: ami-08e18004ed3032bd2
       InstanceType: t3a.small
       KeyName: automation
       NetworkInterfaces:
@@ -30,7 +30,6 @@ Resources:
         Fn::Base64:
           !Sub |
             #!/bin/bash -xe
-            export ENVNAME=${EnvironmentName};
             /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
 
   JenkinsSecurityGroup:
