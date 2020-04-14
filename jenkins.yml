@@ -16,7 +16,7 @@ Resources:
     #   ResourceSignal:
     #     Timeout: PT10M
     Properties:
-      ImageId: ami-0dd0c9e743e796f2e
+      ImageId: ami-01f7501443228e27b
       InstanceType: t3a.small
       KeyName: automation
       NetworkInterfaces:
