@@ -52,6 +52,8 @@ Resources:
           Fn::GetAtt: [VPCStack, Outputs.DockerSecurityGroup]
         SSHIngressSecurityGroup:
           Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
+        WebIngressSecurityGroup:
+          Fn::GetAtt: [VPCStack, Outputs.WebIngressSecurityGroup]
         PublicSubnet1:
           Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
 
