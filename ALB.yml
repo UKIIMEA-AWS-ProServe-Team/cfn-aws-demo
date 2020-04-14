@@ -42,6 +42,14 @@ Resources:
       Protocol: HTTP
       UnhealthyThresholdCount: 4
       VpcId: !Ref VPCId
+      # TargetType: instance
+      # Targets:
+      #   -
+      #     Id:
+      #     Port: 80
+      #   -
+      #     Id:
+      #     Port: 80
       Tags:
         -
           Key: Name
