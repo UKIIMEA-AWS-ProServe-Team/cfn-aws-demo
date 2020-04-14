@@ -12,9 +12,9 @@ Parameters:
 Resources:
   JenkinsInstance:
     Type: AWS::EC2::Instance
-    CreationPolicy:
-      ResourceSignal:
-        Timeout: PT10M
+    # CreationPolicy:
+    #   ResourceSignal:
+    #     Timeout: PT10M
     Properties:
       ImageId: ami-08e18004ed3032bd2
       InstanceType: t3a.small
@@ -26,16 +26,16 @@ Resources:
         -
           Key: Name
           Value: !Sub ${EnvironmentName}-Jenkins
-      UserData:
-        Fn::Base64:
-          !Sub |
-            #!/bin/bash -xe
-            /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
+      # UserData:
+      #   Fn::Base64:
+      #     !Sub |
+      #       #!/bin/bash -xe
+      #       /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
 
   JenkinsSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Enable HTTP access via port 8080, 8443
+      GroupDescription: Enable HTTP access via port 8080, 8443 + SSH
       VpcId: !Ref VPCId
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -45,7 +45,11 @@ Resources:
         - IpProtocol: tcp
           FromPort: '8443'
           ToPort: '8443'
-          CidrIp: 0.0.0.0/0          
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
       Tags:
         -
           Key: Name
@@ -56,7 +60,6 @@ Resources:
     Properties: 
       GroupSet: 
         - !GetAtt JenkinsSecurityGroup.GroupId
-        - !Ref SSHIngressSecurityGroup
       SubnetId: !Ref PublicSubnet2
       Tags:
         -
