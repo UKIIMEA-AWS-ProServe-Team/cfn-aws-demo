@@ -82,7 +82,7 @@ Resources:
       Tags: 
         -
           Key: Name
-          Value: !Sub ${EnvironmentName}
+          Value: !Sub ${EnvironmentName}-Worker
   
   WorkerProfile:
     DependsOn: WorkerRole
