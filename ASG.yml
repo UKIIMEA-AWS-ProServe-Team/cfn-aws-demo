@@ -6,9 +6,27 @@ Parameters:
     Type: String
   WorkerNodeLaunchTemplate:
     Type: String
-  NumberOfWorkerNodes:
-    Type: Number
+  # NumberOfWorkerNodes:
+  #   Type: Number
   PublicSubnet1:
     Type: String
   PublicSubnet2:
     Type: String
+
+ASGGroup:
+  Type: AWS::AutoScaling::AutoScalingGroup
+  Properties:
+    AutoScalingGroupName: !Sub ${EnvironmentName}-ASG
+    VPCZoneIdentifier:
+      - !Ref PublicSubnet1
+      - !Ref PublicSubnet2
+    LaunchTemplate: !Ref WorkerNodeLaunchTemplate
+    DesiredCapacity: '2'
+    MinSize: '1'
+    MaxSize: '6'
+    LoadBalancerNames:
+    - !Ref: ALB
+    Tags:
+      -
+        Key: Name
+        Value: ${EnvironmentName}-ASG

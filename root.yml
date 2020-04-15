@@ -81,14 +81,29 @@ Resources:
         PublicSubnet1:
           Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
 
-  LaunchFleet:
+  # LaunchFleet:
+  #   DependsOn: DockerMgr
+  #   Type: AWS::CloudFormation::Stack
+  #   Properties:
+  #     TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/LaunchFleet.yml
+  #     Parameters:
+  #       EnvironmentName: !Ref EnvironmentName
+  #       NumberOfWorkerNodes: !Ref NumberOfWorkerNodes
+  #       WorkerNodeLaunchTemplate: 
+  #         Fn::GetAtt: [WorkerNodeLaunchTemplate, Outputs.WorkerNodeLaunchTemplate]
+  #       PublicSubnet1:
+  #         Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
+  #       PublicSubnet2:
+  #         Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]
+
+  ASGGroup:
     DependsOn: DockerMgr
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/LaunchFleet.yml
+      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/ASG.yml
       Parameters:
         EnvironmentName: !Ref EnvironmentName
-        NumberOfWorkerNodes: !Ref NumberOfWorkerNodes
+        # NumberOfWorkerNodes: !Ref NumberOfWorkerNodes
         WorkerNodeLaunchTemplate: 
           Fn::GetAtt: [WorkerNodeLaunchTemplate, Outputs.WorkerNodeLaunchTemplate]
         PublicSubnet1:
