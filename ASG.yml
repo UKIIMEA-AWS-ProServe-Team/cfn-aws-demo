@@ -31,7 +31,7 @@ Resources:
       MaxSize: '6'
       LoadBalancerNames:
         - !Ref ALBTargetGroup
-      Tags:
-        - Key: Name
-          PropogateAtLaunch: "true"
-          Value: ${EnvironmentName}-Worker
+      # Tags:
+      #   - Key: Name
+      #     PropogateAtLaunch: "true"
+      #     Value: ${EnvironmentName}-Worker
