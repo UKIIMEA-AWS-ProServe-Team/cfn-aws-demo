@@ -18,6 +18,7 @@ Parameters:
 Resources:
   ASGGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: ALB
     Properties:
       AutoScalingGroupName: !Sub ${EnvironmentName}-ASG
       VPCZoneIdentifier:
