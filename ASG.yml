@@ -35,4 +35,4 @@ Resources:
         -
           Key: Name
           PropogateAtLaunch: true
-          Value: ${EnvironmentName}-ASG
+          Value: ${EnvironmentName}-Worker
