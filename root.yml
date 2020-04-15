@@ -110,6 +110,8 @@ Resources:
           Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
         PublicSubnet2:
           Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]
+        ALBTargetGroup:
+          Fn::GetAtt: [ALB, Outputs.ALBTargetGroup]
 
   DemoALB:
     Type: AWS::CloudFormation::Stack

@@ -88,3 +88,5 @@ Outputs:
   ALBAddr:
     Description: Load balancer DNS address
     Value: !GetAtt ALB.DNSName
+  ALBTargetGroup:
+    Value: !Ref ALBTargetGroup
