@@ -97,7 +97,9 @@ Resources:
   #         Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]
 
   ASGGroup:
-    DependsOn: DockerMgr
+    DependsOn: 
+      - DockerMgr
+      - DemoALB
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/ASG.yml
