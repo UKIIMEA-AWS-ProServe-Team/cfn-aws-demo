@@ -2,6 +2,8 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: "Docker Worker Node Launch Template"
 
 Parameters:
+  EnvironmentName:
+    Type: String
   WorkerNodeLaunchTemplate:
     Type: String
   NumberOfWorkerNodes:

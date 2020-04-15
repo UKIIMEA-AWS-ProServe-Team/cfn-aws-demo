@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Docker Worker Node Launch Template"
+
+Parameters:
+  EnvironmentName:
+    Type: String
+  WorkerNodeLaunchTemplate:
+    Type: String
+  NumberOfWorkerNodes:
+    Type: Number
+  PublicSubnet1:
+    Type: String
+  PublicSubnet2:
+    Type: String
