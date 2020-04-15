@@ -25,7 +25,7 @@ ASGGroup:
     MinSize: '1'
     MaxSize: '6'
     LoadBalancerNames:
-      - !Ref: ALBTargetGroup
+      - !Ref ALBTargetGroup
     Tags:
       -
         Key: Name
