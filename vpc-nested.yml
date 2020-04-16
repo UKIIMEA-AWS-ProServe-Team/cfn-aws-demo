@@ -155,26 +155,26 @@ Resources:
       GroupDescription: "Security Group to allow Docker Ports"
       GroupName: !Sub ${EnvironmentName}-docker-sg
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 2376
-          ToPort: 2376
-          CidrIp: !Ref VpcCIDR
-          Description: "Docker Machine"
-        - IpProtocol: tcp
-          FromPort: 2377
-          ToPort: 2377
-          CidrIp: !Ref VpcCIDR
-          Description: "Docker Swarm Node Comms"
-        - IpProtocol: tcp
-          FromPort: 7946
-          ToPort: 7946
-          CidrIp: !Ref VpcCIDR
-          Description: "Container Network Discovery"
-        - IpProtocol: udp
-          FromPort: 7946
-          ToPort: 7946
-          CidrIp: !Ref VpcCIDR
-          Description: "Container Network Discovery"
+        # - IpProtocol: tcp
+        #   FromPort: 2376
+        #   ToPort: 2376
+        #   CidrIp: !Ref VpcCIDR
+        #   Description: "Docker Machine"
+        # - IpProtocol: tcp
+        #   FromPort: 2377
+        #   ToPort: 2377
+        #   CidrIp: !Ref VpcCIDR
+        #   Description: "Docker Swarm Node Comms"
+        # - IpProtocol: tcp
+        #   FromPort: 7946
+        #   ToPort: 7946
+        #   CidrIp: !Ref VpcCIDR
+        #   Description: "Container Network Discovery"
+        # - IpProtocol: udp
+        #   FromPort: 7946
+        #   ToPort: 7946
+        #   CidrIp: !Ref VpcCIDR
+        #   Description: "Container Network Discovery"
         - IpProtocol: -1
           CidrIp: !Ref VpcCIDR
           Description: "Quick override to allow testing from Jenkins"
