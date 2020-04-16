@@ -7,5 +7,6 @@
 4. Sets up Application Load Balancer
 5. Sets up Jenkins and integrates with Github and Docker Hub
 6. Connects to simple test app on Github
+7. Will only run in eu-west-2 (London region)
 
 NOTE: State is not retained after deletion of stack. We should add this at some point
