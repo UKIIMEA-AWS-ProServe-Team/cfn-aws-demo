@@ -72,7 +72,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName} Public Routes
+          Value: !Sub ${EnvironmentName}-PublicRoutes
 
   DefaultPublicRoute:
     Type: AWS::EC2::Route
@@ -138,16 +138,11 @@ Resources:
           ToPort: 80
           CidrIp: 0.0.0.0/0
           Description: "Standard HTTP"
-        # - IpProtocol: tcp
-        #   FromPort: 443
-        #   ToPort: 443
-        #   Description: "Standard HTTPS"
-        #   CidrIp: 0.0.0.0/0
-        # - IpProtocol: tcp
-        #   FromPort: 8080
-        #   ToPort: 8085
-        #   CidrIp: 0.0.0.0/0
-        #   Description: "Some common web service ports"
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          Description: "Standard HTTPS"
+          CidrIp: 0.0.0.0/0
 
   DockerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
