@@ -100,6 +100,7 @@ Resources:
     DependsOn: 
       - DockerMgr
       - DemoALB
+      - WorkerNodeLaunchTemplate
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/ASG.yml
