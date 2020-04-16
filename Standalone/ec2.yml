@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   InstanceType:
-    Description: Jenkins EC2 instance type
+    Description: EC2 instance type
     Type: String
-    Default: t3a.small
+    Default: t3a.nano
     AllowedValues:
     - m4.large
     - m4.xlarge
@@ -51,17 +51,35 @@ Parameters:
     - t3a.2xlarge
 
 Resources:
+
+  MyEBSVolume:
+    Type: AWS::EC2::Volume
+    Properties:
+      Size: 8
+      # SnapshotId: specify a SnapShotId if no Size
+      AvailabilityZone: eu-west-2c
+    DeletionPolicy: Snapshot
+
   MyInstance:
     Type: AWS::EC2::Instance
     CreationPolicy:
       ResourceSignal:
         Timeout: PT10M
     Properties:
-      ImageId: ami-042c1d8a601ebed1f
+      ImageId: ami-01a6e31ac994bbc09
       SecurityGroupIds: 
         - !Ref MySecurityGroup
       InstanceType: !Ref 'InstanceType'
       KeyName: automation
+  # This block retains the volume AND a snapshot
+      BlockDeviceMappings:
+        -
+          DeviceName: /dev/xvda
+          Ebs:
+            DeleteOnTermination: false
+            Encrypted: false
+            # SnapshotId:
+            VolumeSize: 8
       UserData:
         Fn::Base64:
           !Sub |
@@ -71,19 +89,12 @@ Resources:
         -
           Key: Name
           Value: !Ref AWS::StackName
+
   MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: "Enable Access: SSH + Jenkins"
+      GroupDescription: "Enable Access: SSH"
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: '8080'
-          ToPort: '8080'
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: '8443'
-          ToPort: '8443'
-          CidrIp: 0.0.0.0/0          
         - IpProtocol: tcp
           FromPort: '22'
           ToPort: '22'
