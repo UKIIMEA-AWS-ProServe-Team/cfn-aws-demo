@@ -26,10 +26,12 @@ Resources:
       LaunchTemplate:
         LaunchTemplateId: !Ref WorkerNodeLaunchTemplate
         Version: '1'
-      DesiredCapacity: '2'
-      MinSize: '1'
-      MaxSize: '6'
-      LoadBalancerNames:
+      DesiredCapacity: 2
+      MinSize: 1
+      MaxSize: 6
+      # LoadBalancerNames:
+      #   - !Ref ALBTargetGroup
+      TargetGroupARNs:
         - !Ref ALBTargetGroup
       # Tags:
       #   - Key: Name
