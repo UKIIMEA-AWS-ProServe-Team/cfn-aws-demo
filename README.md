@@ -1,8 +1,11 @@
 # cfn-work
-## For demo purposes only - not for production
+## For demo purposes only - not for production - poor security.
 
-This piece will setup small Docker Swarm on EC2 for test, training & demo. Aiming to be actuated with one button press and no pre-created elements. 
-Note that swarm cannot be expanded after 1st hour.
-Plan to create ECS / EKS / Fargate versions at later stage for comparison. Will contain some production attributes but should be considered PoC quality - no rigour applied!
+1. Sets up VPC with 2 public subnets / AZ
+2. Sets up Docker Swarm
+3. Sets up auto-scaling of swarm
+4. Sets up Application Load Balancer
+5. Sets up Jenkins and integrates with Github and Docker Hub
+6. Connects to simple test app on Github
 
-Jamie working on CI/CD pipe to feed swarm
+NOTE: State is not retained after deletion of stack. We should add this at some point
