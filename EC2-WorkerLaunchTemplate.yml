@@ -28,7 +28,7 @@ Resources:
         IamInstanceProfile:
           Name: !Ref WorkerProfile
         ImageId: ami-0389b2a3c4948b1a0
-        InstanceType: t3a.nano
+        InstanceType: t3a.small
         KeyName: automation
         TagSpecifications:
           -
@@ -36,7 +36,7 @@ Resources:
             Tags:
               - 
                 Key: Name
-                Value: !Sub ${EnvironmentName}
+                Value: !Sub ${EnvironmentName}-Worker
           -
             ResourceType: volume
             Tags:
