@@ -174,7 +174,13 @@ Resources:
           FromPort: 7946
           ToPort: 7946
           CidrIp: !Ref VpcCIDR
-          Description: "Container Network Discovery"       
+          Description: "Container Network Discovery"
+        - IpProtocol: tcp
+          FromPort: -1
+          ToPort: -1
+          CidrIp: !Ref VpcCIDR
+          Description: "Quick override to allow testing from Jenkins"
+
 
 Outputs:
   VPC:
