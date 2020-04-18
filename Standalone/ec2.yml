@@ -83,7 +83,11 @@ Resources:
         Fn::Base64:
           !Sub |
             #!/bin/bash -xe
-            aws ec2 create-tags --resources $(aws ec2 describe-volumes --filters Name=attachment.instance-id,Values=$(curl -s http://169.254.169.254/latest/meta-data/instance-id) Name=attachment.device,Values=/dev/xvda --query 'Volumes[*].[VolumeId]' --region=eu-west-2 --out text | cut -f 1) --tags Key=backup-jenkins,Value=${EnvironmentName} --region eu-west-2;
+            aws ec2 create-tags --resources $(aws ec2 describe-volumes --filters \
+            Name=attachment.instance-id,Values=$(curl -s http://169.254.169.254/latest/meta-data/instance-id) \
+            Name=attachment.device,Values=/dev/xvda --query \
+            'Volumes[*].[VolumeId]' --region=eu-west-2 --out text | cut -f 1) --tags Key=backup-jenkins,Value=${EnvironmentName} \
+            Key=Name,Value=${EnvironmentName}-Vol --region eu-west-2;
             /opt/aws/bin/cfn-signal --exit-code 0 --resource MyInstance --region ${AWS::Region} --stack ${AWS::StackName};
       Tags:
         -
