@@ -25,41 +25,47 @@ def lambda_handler(event, context):
     else:
         # If everything looks ok proceed
         for instance in instances:
-            for dev in instance['BlockDeviceMappings']:
-                if dev.get('Ebs', None) is None:
-                    continue
-                vol_id = dev['Ebs']['VolumeId']
-                print "Found EBS volume %s on instance %s" % (vol_id, instance['InstanceId'])
+            print "Found instance %s" % (instance['InstanceId'])
 
-                snap = ec.create_snapshot(
-                    Description='Jenkins snapshot',
-                    VolumeId=vol_id,
-                )
+            # Create an AMI from the instance
+            JenkinsAMI = client.create_image(
+                BlockDeviceMappings=[
+                    {
+                        'DeviceName': '/dev/xvda',
+                        'Ebs': {
+                            'DeleteOnTermination': True
+                         }
+                        },
+                ],
+                Description='Jenkins AMI from instance',
+                InstanceId=instance['InstanceId'],
+                Name='Jenkins AMI'
+            )                      
 
-                # Save the snap id to Parameter store for retrieval by server boot
-                savesnap = client.put_parameter(
-                    Name='/JenkinsSnapshotId',
-                    Value=snap['SnapshotId'],
-                    Type='String',
-                    KeyId='string',
-                    Overwrite=True,
-                    Tier='Standard',
-                )                    
+            # Tag the AMI
+            ec.create_tags(
+                Resources=[
+                    JenkinsAMI['ImageId']
+                ],
+                Tags=[
+                    {'Key': 'Name', 'Value': "Jenkins AMI"},
+                    {'Key': 'Date', 'Value': "UTC: %s" % (str(datetime.datetime.utcnow()))}
+                ]
+            )
 
-                ec.create_tags(
-                    Resources=[
-                        snap['SnapshotId'],
-                    ],
-                    Tags=[
-                        {'Key': 'Name', 'Value': "Jenkins snap"},
-                        {'Key': 'Date', 'Value': "UTC: %s" % (str(datetime.datetime.utcnow()))}
-                    ]
-                )            
+            print "AMI %s created from instance %s" % (
+                JenkinsAMI['ImageId'],
+                instance['InstanceId']
+            )
 
-                print "Snapshot %s of volume %s from instance %s" % (
-                    snap['SnapshotId'],
-                    vol_id,
-                    instance['InstanceId'],
-                )
+            # Save the AMI id to Parameter store for retrieval by server boot
+            saveami = client.put_parameter(
+                Name='/JenkinsAMIId',
+                Value=JenkinsAMI['ImageId'],
+                Type='String',
+                Overwrite=True,
+                Tier='Standard',
+            )           
+
 
 lambda_handler(None, None)
