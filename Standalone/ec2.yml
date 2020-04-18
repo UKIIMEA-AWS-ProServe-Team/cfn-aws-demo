@@ -93,6 +93,10 @@ Resources:
         -
           Key: Name
           Value: !Sub ${EnvironmentName}-Instance
+        -
+          Key: Backup1357
+          Value: Test
+
 
   MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
