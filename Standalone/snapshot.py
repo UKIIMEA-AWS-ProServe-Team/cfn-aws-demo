@@ -23,6 +23,7 @@ def lambda_handler(event, context):
         print ("ERROR: found more than 1 instance to backup & that is not the intent")
         return None
     else:
+        # If everything looks ok proceed
         for instance in instances:
             for dev in instance['BlockDeviceMappings']:
                 if dev.get('Ebs', None) is None:
@@ -35,7 +36,7 @@ def lambda_handler(event, context):
                     VolumeId=vol_id,
                 )
 
-
+                # Save the snap id to Parameter store for retrieval by server boot
                 savesnap = client.put_parameter(
                     Name='/JenkinsSnapshotId',
                     Value=snap['SnapshotId'],

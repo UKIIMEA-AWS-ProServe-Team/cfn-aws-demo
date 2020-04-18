@@ -108,10 +108,10 @@ Resources:
           ToPort: '22'
           CidrIp: 0.0.0.0/0
 
-  TagRole:
+  MyRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${EnvironmentName}-EBS-Tagging-Role
+      RoleName: !Sub ${EnvironmentName}-EC2Role
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -125,7 +125,7 @@ Resources:
       MaxSessionDuration: 3600 # Role effective for 1 hour
       Path: /
       Policies: 
-        - PolicyName: !Sub ${EnvironmentName}-EBS-Tagging-Policy
+        - PolicyName: !Sub ${EnvironmentName}-TagPolicy
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -134,48 +134,24 @@ Resources:
                   - "ec2:Describe*"
                   - "ec2:CreateTags"
                 Resource: "*"
+        - PolicyName: !Sub ${EnvironmentName}-ParameterPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameters
+                  - ssm:GetParameter
+                Resource: arn:aws:ssm:*:*:parameter/*
       Tags: 
         -
           Key: Name
-          Value: EBS-Tagging
-
-  SSMRole:
-  Type: AWS::IAM::Role
-  Properties:
-    RoleName: !Sub ${EnvironmentName}-SSM-Params-Role
-    AssumeRolePolicyDocument:
-      Version: 2012-10-17
-      Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - ec2.amazonaws.com
-          Action:
-            - 'sts:AssumeRole'
-    Description: Role for EC2 to read/write SSM Parameters via CLI
-    MaxSessionDuration: 3600 # Role active for 1 hour (Implies no scaling after an hour - spot instances!)
-    Path: /
-    Policies: 
-      - PolicyName: !Sub ${EnvironmentName}-SSM-Params-Policy
-        PolicyDocument:
-          Version: 2012-10-17
-          Statement:
-            - Effect: Allow
-              Action:
-                - ssm:GetParameters
-                - ssm:GetParameter
-              Resource: arn:aws:ssm:*:*:parameter/*
-    Tags: 
-      -
-        Key: Name
-        Value: !Sub ${EnvironmentName}-TempSSMRole
+          Value: !Sub ${EnvironmentName}-Role
 
   MyProfile:
-    DependsOn: TagRole
     Type: AWS::IAM::InstanceProfile
     Properties: 
-      InstanceProfileName: !Sub ${EnvironmentName}-Tag-Profile
+      InstanceProfileName: !Sub ${EnvironmentName}-SnapProfile
       Path: /
       Roles: 
-        - !Sub ${EnvironmentName}-EBS-Tagging-Role
-        - !Sub ${EnvironmentName}-SSM-Params-Role
+        - !Ref MyRole
