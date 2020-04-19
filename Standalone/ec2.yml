@@ -1,3 +1,4 @@
+# 
 AWSTemplateFormatVersion: '2010-09-09'
 
 Parameters:
@@ -53,6 +54,9 @@ Parameters:
     - t3a.large
     - t3a.xlarge
     - t3a.2xlarge
+  AMIId:
+    Type : 'AWS::SSM::Parameter::Value<String>'
+    Default: JenkinsAMIId    
 
 Resources:
 
@@ -62,33 +66,34 @@ Resources:
       ResourceSignal:
         Timeout: PT10M
     Properties:
-      ImageId: ami-01a6e31ac994bbc09
+      ImageId: !Ref AMIId
       SecurityGroupIds: 
         - !Ref MySecurityGroup
-      IamInstanceProfile:
-        !Ref MyProfile
+      # IamInstanceProfile:
+      #   !Ref MyProfile
       InstanceType: !Ref 'InstanceType'
       KeyName: automation
-  # This block retains the volume AND a snapshot
-      BlockDeviceMappings:
-        -
-          DeviceName: /dev/xvda
-          Ebs:
-            DeleteOnTermination: false
-            Encrypted: false
-            # SnapshotId:
-            VolumeSize: 8
-
+  # # This block retains the volume AND a snapshot
+  #     BlockDeviceMappings:
+  #       -
+  #         DeviceName: /dev/xvda
+  #         Ebs:
+  #           DeleteOnTermination: false
+  #           Encrypted: false
+  #           # SnapshotId:
+  #           VolumeSize: 8
+      # Tag the volume - seems long winded but couldn't find an easy way!
       UserData:
         Fn::Base64:
           !Sub |
             #!/bin/bash -xe
-            aws ec2 create-tags --resources $(aws ec2 describe-volumes --filters \
-            Name=attachment.instance-id,Values=$(curl -s http://169.254.169.254/latest/meta-data/instance-id) \
-            Name=attachment.device,Values=/dev/xvda --query \
-            'Volumes[*].[VolumeId]' --region=eu-west-2 --out text | cut -f 1) --tags Key=Backup1357,Value=${EnvironmentName} \
-            Key=Name,Value=${EnvironmentName}-Vol --region eu-west-2;
             /opt/aws/bin/cfn-signal --exit-code 0 --resource MyInstance --region ${AWS::Region} --stack ${AWS::StackName};
+      #       aws ec2 create-tags --resources $(aws ec2 describe-volumes --filters \
+      #       Name=attachment.instance-id,Values=$(curl -s http://169.254.169.254/latest/meta-data/instance-id) \
+      #       Name=attachment.device,Values=/dev/xvda --query \
+      #       'Volumes[*].[VolumeId]' --region=eu-west-2 --out text | cut -f 1) --tags Key=Backup1357,Value=${EnvironmentName} \
+      #       Key=Name,Value=${EnvironmentName}-Vol --region eu-west-2;
+            
       Tags:
         -
           Key: Name
@@ -108,50 +113,50 @@ Resources:
           ToPort: '22'
           CidrIp: 0.0.0.0/0
 
-  MyRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${EnvironmentName}-EC2Role
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-              - ec2.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Description: Role for EC2 to tag EBS volumes
-      MaxSessionDuration: 3600 # Role effective for 1 hour
-      Path: /
-      Policies: 
-        - PolicyName: !Sub ${EnvironmentName}-TagPolicy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "ec2:Describe*"
-                  - "ec2:CreateTags"
-                Resource: "*"
-        - PolicyName: !Sub ${EnvironmentName}-ParameterPolicy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - ssm:GetParameters
-                  - ssm:GetParameter
-                Resource: arn:aws:ssm:*:*:parameter/*
-      Tags: 
-        -
-          Key: Name
-          Value: !Sub ${EnvironmentName}-Role
+  # MyRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     RoleName: !Sub ${EnvironmentName}-EC2Role
+  #     AssumeRolePolicyDocument:
+  #       Version: 2012-10-17
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Service:
+  #             - ec2.amazonaws.com
+  #           Action:
+  #             - 'sts:AssumeRole'
+  #     Description: Role for EC2 to tag EBS volumes
+  #     MaxSessionDuration: 3600 # Role effective for 1 hour
+  #     Path: /
+  #     Policies: 
+  #       - PolicyName: !Sub ${EnvironmentName}-TagPolicy
+  #         PolicyDocument:
+  #           Version: 2012-10-17
+  #           Statement:
+  #             - Effect: Allow
+  #               Action:
+  #                 - "ec2:Describe*"
+  #                 - "ec2:CreateTags"
+  #               Resource: "*"
+        # - PolicyName: !Sub ${EnvironmentName}-ParameterPolicy
+        #   PolicyDocument:
+        #     Version: 2012-10-17
+        #     Statement:
+        #       - Effect: Allow
+        #         Action:
+        #           - ssm:GetParameters
+        #           - ssm:GetParameter
+        #         Resource: arn:aws:ssm:*:*:parameter/*
+      # Tags: 
+      #   -
+      #     Key: Name
+      #     Value: !Sub ${EnvironmentName}-Role
 
-  MyProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties: 
-      InstanceProfileName: !Sub ${EnvironmentName}-SnapProfile
-      Path: /
-      Roles: 
-        - !Ref MyRole
+  # MyProfile:
+  #   Type: AWS::IAM::InstanceProfile
+  #   Properties: 
+  #     InstanceProfileName: !Sub ${EnvironmentName}-SnapProfile
+  #     Path: /
+  #     Roles: 
+  #       - !Ref MyRole
