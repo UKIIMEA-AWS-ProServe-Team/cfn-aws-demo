@@ -13,8 +13,8 @@ Resources:
         S3Key: !Ref amicreate.zip
       Description: "Lambda to create ami from instance on stack delete"
       Handler: amicreate.handler
-      ReservedConcurrentExecutions: Integer
-      Role: String
+      ReservedConcurrentExecutions: 5
+      Role: !Ref LambdaExecutionRole
       Runtime: python2.7
       Tags:
         -
