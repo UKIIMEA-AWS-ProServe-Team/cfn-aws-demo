@@ -30,6 +30,13 @@ Parameters:
     Type: String
     Default: 10.192.11.0/24
 
+  JenkinsStartupConfig:
+    Type: String
+    Description: Jenkins config location on S3 bucket (TAR file). Leave blank for no initial config.
+  JenkinsOutputBucket:
+    Type: String
+    Description: S3 bucket to store Jenkins config on exit 
+
 Resources:
 
   VPCStack:
@@ -129,6 +136,10 @@ Resources:
           Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
         VPCId:
           Fn::GetAtt: [VPCStack, Outputs.VPC]
+        JenkinsStartupConfig:
+          !Ref JenkinsStartupConfig
+        JenkinsOutputBucket:
+          !Ref JenkinsOutputBucket
 
   # LambdaFunc:
   #   Type: AWS::CloudFormation::Stack
