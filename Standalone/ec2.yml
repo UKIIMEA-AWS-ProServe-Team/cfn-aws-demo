@@ -11,35 +11,7 @@ Parameters:
     Default: t3a.nano
     AllowedValues:
     - m4.large
-    - m4.xlarge
-    - m4.2xlarge
-    - m4.4xlarge
-    - m4.10xlarge
-    - m4.16xlarge
     - m5.large
-    - m5.xlarge
-    - m5.2xlarge
-    - m5.4xlarge
-    - m5.8xlarge
-    - m5.12xlarge
-    - m5.16xlarge
-    - m5.24xlarge
-    - m5.metal
-    - m5a.large
-    - m5a.xlarge
-    - m5a.2xlarge
-    - m5a.4xlarge
-    - m5a.8xlarge
-    - m5a.12xlarge
-    - m5a.16xlarge
-    - m5a.24xlarge
-    - t2.nano
-    - t2.micro
-    - t2.small
-    - t2.medium
-    - t2.large
-    - t2.xlarge
-    - t2.2xlarge
     - t3.nano
     - t3.micro
     - t3.small
@@ -56,7 +28,9 @@ Parameters:
     - t3a.2xlarge
   AMIId:
     Type : 'AWS::SSM::Parameter::Value<String>'
-    Default: JenkinsAMIId    
+    Default: JenkinsAMIId
+  LambdaFuncName:
+    Type: String
 
 Resources:
 
@@ -69,31 +43,19 @@ Resources:
       ImageId: !Ref AMIId
       SecurityGroupIds: 
         - !Ref MySecurityGroup
-      # IamInstanceProfile:
-      #   !Ref MyProfile
       InstanceType: !Ref 'InstanceType'
       KeyName: automation
-  # # This block retains the volume AND a snapshot
-  #     BlockDeviceMappings:
-  #       -
-  #         DeviceName: /dev/xvda
-  #         Ebs:
-  #           DeleteOnTermination: false
-  #           Encrypted: false
-  #           # SnapshotId:
-  #           VolumeSize: 8
+
       # Tag the volume - seems long winded but couldn't find an easy way!
       UserData:
         Fn::Base64:
           !Sub |
             #!/bin/bash -xe
+            aws ec2 create-tags --resources $(aws ec2 describe-volumes --filters \
+            Name=attachment.instance-id,Values=$(curl -s http://169.254.169.254/latest/meta-data/instance-id) \
+            --query 'Volumes[*].[VolumeId]' --region=eu-west-2 --out text | cut -f 1) --tags \
+            Key=Name,Value=${EnvironmentName}-Vol --region eu-west-2;
             /opt/aws/bin/cfn-signal --exit-code 0 --resource MyInstance --region ${AWS::Region} --stack ${AWS::StackName};
-      #       aws ec2 create-tags --resources $(aws ec2 describe-volumes --filters \
-      #       Name=attachment.instance-id,Values=$(curl -s http://169.254.169.254/latest/meta-data/instance-id) \
-      #       Name=attachment.device,Values=/dev/xvda --query \
-      #       'Volumes[*].[VolumeId]' --region=eu-west-2 --out text | cut -f 1) --tags Key=Backup1357,Value=${EnvironmentName} \
-      #       Key=Name,Value=${EnvironmentName}-Vol --region eu-west-2;
-            
       Tags:
         -
           Key: Name
@@ -102,6 +64,13 @@ Resources:
           Key: Backup1357
           Value: Test
 
+  MyCustomResource: 
+    Type: "Custom::LambdaSaveInstanceAMI"
+    Properties: 
+      ServiceToken:
+        !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${LambdaFuncName}
+      StackName: 
+        Ref: "NetworkStackName"
 
   MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -113,50 +82,50 @@ Resources:
           ToPort: '22'
           CidrIp: 0.0.0.0/0
 
-  # MyRole:
-  #   Type: AWS::IAM::Role
-  #   Properties:
-  #     RoleName: !Sub ${EnvironmentName}-EC2Role
-  #     AssumeRolePolicyDocument:
-  #       Version: 2012-10-17
-  #       Statement:
-  #         - Effect: Allow
-  #           Principal:
-  #             Service:
-  #             - ec2.amazonaws.com
-  #           Action:
-  #             - 'sts:AssumeRole'
-  #     Description: Role for EC2 to tag EBS volumes
-  #     MaxSessionDuration: 3600 # Role effective for 1 hour
-  #     Path: /
-  #     Policies: 
-  #       - PolicyName: !Sub ${EnvironmentName}-TagPolicy
-  #         PolicyDocument:
-  #           Version: 2012-10-17
-  #           Statement:
-  #             - Effect: Allow
-  #               Action:
-  #                 - "ec2:Describe*"
-  #                 - "ec2:CreateTags"
-  #               Resource: "*"
-        # - PolicyName: !Sub ${EnvironmentName}-ParameterPolicy
-        #   PolicyDocument:
-        #     Version: 2012-10-17
-        #     Statement:
-        #       - Effect: Allow
-        #         Action:
-        #           - ssm:GetParameters
-        #           - ssm:GetParameter
-        #         Resource: arn:aws:ssm:*:*:parameter/*
-      # Tags: 
-      #   -
-      #     Key: Name
-      #     Value: !Sub ${EnvironmentName}-Role
+  AMICreateFunction:
+    Type: AWS::Lambda::Function
+    Properties: 
+      Code: 
+        S3Bucket: cfn-demo-ianp
+        S3Key: amicreate.zip
+      Description: "Lambda to create ami from instance on stack delete"
+      Handler: amicreate.handler
+      ReservedConcurrentExecutions: 0
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python2.7
+      Tags:
+        -
+          Key: Name
+          Value: !Sub ${EnvironmentName}-Lambda
+      Timeout: 15
 
-  # MyProfile:
-  #   Type: AWS::IAM::InstanceProfile
-  #   Properties: 
-  #     InstanceProfileName: !Sub ${EnvironmentName}-SnapProfile
-  #     Path: /
-  #     Roles: 
-  #       - !Ref MyRole
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: Demo-LambdaPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource: arn:aws:logs:*:*:*
+          - Effect: Allow
+            Action:
+            - ec2:DescribeInstances
+            - ec2:CreateTags
+            - ec2:CreateImage
+            Resource: "*"
