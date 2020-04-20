@@ -66,12 +66,6 @@ Resources:
           Key: Name
           Value: !Sub ${EnvironmentName}-JenkinsENI
 
-  MyCustomResource: 
-    Type: "Custom::LambdaSaveInstanceAMI"
-    Properties: 
-      ServiceToken:
-        !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${LambdaFuncName}
-
 Outputs:
 
   JenkinsPubIp:
