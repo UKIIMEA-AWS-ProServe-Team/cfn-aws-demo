@@ -12,7 +12,7 @@ Resources:
         S3Bucket: cfn-demo-ianp
         S3Key: amicreate.zip
       Description: "Lambda to create ami from instance on stack delete"
-      Handler: amicreate.handler
+      Handler: amicreate.lambda_handler
       ReservedConcurrentExecutions: 0
       Role: !GetAtt LambdaExecutionRole.Arn
       Runtime: python2.7

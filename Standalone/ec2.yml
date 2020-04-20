@@ -29,16 +29,14 @@ Parameters:
   AMIId:
     Type : 'AWS::SSM::Parameter::Value<String>'
     Default: JenkinsAMIId
-  LambdaFuncName:
-    Type: String
 
 Resources:
 
   MyInstance:
     Type: AWS::EC2::Instance
-    CreationPolicy:
-      ResourceSignal:
-        Timeout: PT10M
+    # CreationPolicy:
+    #   ResourceSignal:
+    #     Timeout: PT10M
     Properties:
       ImageId: !Ref AMIId
       SecurityGroupIds: 
@@ -47,15 +45,15 @@ Resources:
       KeyName: automation
 
       # Tag the volume - seems long winded but couldn't find an easy way!
-      UserData:
-        Fn::Base64:
-          !Sub |
-            #!/bin/bash -xe
-            aws ec2 create-tags --resources $(aws ec2 describe-volumes --filters \
-            Name=attachment.instance-id,Values=$(curl -s http://169.254.169.254/latest/meta-data/instance-id) \
-            --query 'Volumes[*].[VolumeId]' --region=eu-west-2 --out text | cut -f 1) --tags \
-            Key=Name,Value=${EnvironmentName}-Vol --region eu-west-2;
-            /opt/aws/bin/cfn-signal --exit-code 0 --resource MyInstance --region ${AWS::Region} --stack ${AWS::StackName};
+      # UserData:
+      #   Fn::Base64:
+      #     !Sub |
+      #       #!/bin/bash -xe
+      #       aws ec2 create-tags --resources $(aws ec2 describe-volumes --filters \
+      #       Name=attachment.instance-id,Values=$(curl -s http://169.254.169.254/latest/meta-data/instance-id) \
+      #       --query 'Volumes[*].[VolumeId]' --region=eu-west-2 --out text | cut -f 1) --tags \
+      #       Key=Name,Value=${EnvironmentName}-Vol --region eu-west-2;
+      #       /opt/aws/bin/cfn-signal --exit-code 0 --resource MyInstance --region ${AWS::Region} --stack ${AWS::StackName};
       Tags:
         -
           Key: Name
@@ -64,13 +62,12 @@ Resources:
           Key: Backup1357
           Value: Test
 
-  MyCustomResource: 
+  MyCustomResource:
+    DependsOn: AMICreateFunction
     Type: "Custom::LambdaSaveInstanceAMI"
     Properties: 
       ServiceToken:
-        !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${LambdaFuncName}
-      StackName: 
-        Ref: "NetworkStackName"
+        !GetAtt AMICreateFunction.Arn
 
   MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -83,13 +80,14 @@ Resources:
           CidrIp: 0.0.0.0/0
 
   AMICreateFunction:
+    DependsOn: MyInstance
     Type: AWS::Lambda::Function
     Properties: 
       Code: 
         S3Bucket: cfn-demo-ianp
         S3Key: amicreate.zip
       Description: "Lambda to create ami from instance on stack delete"
-      Handler: amicreate.handler
+      Handler: amicreate.lambda_handler
       ReservedConcurrentExecutions: 0
       Role: !GetAtt LambdaExecutionRole.Arn
       Runtime: python2.7
@@ -129,3 +127,7 @@ Resources:
             - ec2:CreateTags
             - ec2:CreateImage
             Resource: "*"
+
+Outputs:
+  LambdaArn:
+    Value: !GetAtt AMICreateFunction.Arn
