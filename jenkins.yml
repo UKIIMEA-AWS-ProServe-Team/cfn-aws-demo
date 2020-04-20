@@ -1,4 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  License: Apache-2.0
 Parameters:
   EnvironmentName:
     Type: String
@@ -8,36 +10,40 @@ Parameters:
     Type: String
   VPCId:
     Type: String
-
+  JenkinsStartupConfig:
+    Type: String
+    Description: Jenkins config location on S3 bucket (TAR file). Leave blank for no initial config.
+  JenkinsOutputBucket:
+      Type: String
+      Description: S3 bucket to store Jenkins config on exit
+Conditions:
+  NoJenkinsConfig: !Equals [ !Ref JenkinsStartupConfig, '' ]
+  JenkinsConfig: !Not [ !Equals [ !Ref JenkinsStartupConfig, '' ] ]
 Resources:
-  JenkinsInstance:
-    Type: AWS::EC2::Instance
-    # CreationPolicy:
-    #   ResourceSignal:
-    #     Timeout: PT10M
+  DXCS3Role:
+    Type: 'AWS::IAM::Role'
     Properties:
-      ImageId: ami-07fbc9b146a48f4e8
-      InstanceType: t3a.small
-      KeyName: automation
-      NetworkInterfaces:
-        - NetworkInterfaceId: !Ref JenkinsENI
-          DeviceIndex: 0
-      Tags:
-        -
-          Key: Name
-          Value: !Sub ${EnvironmentName}-Jenkins
-      # UserData:
-      #   Fn::Base64:
-      #     !Sub |
-      #       #!/bin/bash -xe
-      #       /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
-
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
   JenkinsSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+    Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: Enable HTTP access via port 8080, 8443 + SSH
-      VpcId: !Ref VPCId
+      VpcId:
+        !Ref VPCId
       SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
           FromPort: '8080'
           ToPort: '8080'
@@ -46,27 +52,92 @@ Resources:
           FromPort: '8443'
           ToPort: '8443'
           CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: '22'
-          ToPort: '22'
-          CidrIp: 0.0.0.0/0
       Tags:
         -
           Key: Name
           Value: !Sub ${EnvironmentName}-jenkins-sg
-
   JenkinsENI:
     Type: AWS::EC2::NetworkInterface
-    Properties: 
-      GroupSet: 
-        - !GetAtt JenkinsSecurityGroup.GroupId
+    Properties:
+      GroupSet:
+        -
+          !GetAtt JenkinsSecurityGroup.GroupId
       SubnetId: !Ref PublicSubnet2
       Tags:
         -
           Key: Name
           Value: !Sub ${EnvironmentName}-JenkinsENI
 
-Outputs:
-
-  JenkinsPubIp:
-    Value: !GetAtt JenkinsInstance.PublicIp
+  UserDataPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: full-s3
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:*
+            Resource:
+              - arn:aws:s3:::*
+      Roles:
+        - !Ref 'DXCS3Role'
+  FullS3BucketsInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref 'DXCS3Role'
+  JenkinsInstance1:
+    Type: AWS::EC2::Instance
+    Condition: JenkinsConfig
+    Properties:
+      InstanceType: t3a.small
+      KeyName: automation
+      NetworkInterfaces:
+        - NetworkInterfaceId: !Ref JenkinsENI
+          DeviceIndex: 0
+      ImageId: ami-01a6e31ac994bbc09
+      IamInstanceProfile: !Ref 'FullS3BucketsInstanceProfile'
+      Tags:
+        -
+          Key: Name
+          Value: !Sub ${EnvironmentName}-Jenkins
+      UserData:
+        Fn::Base64: !Sub |
+            #!/bin/bash -xe
+            sudo yum install java-1.8.0 -y
+            sudo yum update –y
+            sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo
+            sudo rpm --import http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
+            sudo yum install jenkins -y --nogpgcheck
+            sudo aws s3 cp ${JenkinsStartupConfig} /var/tmp/jenkins_backup.tar
+            sudo tar -xf /var/tmp/jenkins_backup.tar -C /var/lib/jenkins/
+            sudo service jenkins start
+            sudo chkconfig jenkins on
+            sudo sed -i '/echo -n "Shutting .*/a sudo tar -cvf jenkins_backup.tar -C /var/lib/jenkins/ .\n \t sudo aws s3 cp jenkins_backup.tar ${JenkinsOutputBucket}$(date +%Y_%m_%d_%T)_jenkins_backup.tar' /etc/init.d/jenkins
+  JenkinsInstance2:
+    Type: AWS::EC2::Instance
+    Condition: NoJenkinsConfig
+    Properties:
+      InstanceType: t3a.small
+      KeyName: automation
+      NetworkInterfaces:
+        - NetworkInterfaceId: !Ref JenkinsENI
+          DeviceIndex: 0
+      ImageId: ami-01a6e31ac994bbc09
+      IamInstanceProfile: !Ref 'FullS3BucketsInstanceProfile'
+      Tags:
+        -
+          Key: Name
+          Value: !Sub ${EnvironmentName}-Jenkins
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          sudo yum install java-1.8.0 -y
+          sudo yum update –y
+          sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo
+          sudo rpm --import http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
+          sudo yum install jenkins -y --nogpgcheck
+          sudo service jenkins start
+          sudo chkconfig jenkins on
+          sudo sed -i '/echo -n "Shutting .*/a sudo tar -cvf jenkins_backup.tar -C /var/lib/jenkins/ .\n \t sudo aws s3 cp jenkins_backup.tar ${JenkinsOutputBucket}$(date +%Y_%m_%d_%T)_jenkins_backup.tar' /etc/init.d/jenkins
