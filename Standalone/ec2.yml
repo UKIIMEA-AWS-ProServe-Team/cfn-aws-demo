@@ -88,7 +88,7 @@ Resources:
         S3Key: amicreate.zip
       Description: "Lambda to create ami from instance on stack delete"
       Handler: amicreate.lambda_handler
-      ReservedConcurrentExecutions: 0
+      ReservedConcurrentExecutions: 1
       Role: !GetAtt LambdaExecutionRole.Arn
       Runtime: python2.7
       Tags:
@@ -126,6 +126,7 @@ Resources:
             - ec2:DescribeInstances
             - ec2:CreateTags
             - ec2:CreateImage
+            - ssm:PutParameter
             Resource: "*"
 
 Outputs:

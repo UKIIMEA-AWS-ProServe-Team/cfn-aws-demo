@@ -7,6 +7,7 @@ store = boto3.client('ssm')
 
 def lambda_handler(event, context):
 
+    print "This is the event received:\n%s" % (event)
     if event['RequestType'] == "Delete":  # Only run this on stack delete
         reservations = ec.describe_instances(
             Filters=[
@@ -70,4 +71,4 @@ def lambda_handler(event, context):
                 Type='String',
                 Overwrite=True,
                 Tier='Standard',
-            )
+            )   
