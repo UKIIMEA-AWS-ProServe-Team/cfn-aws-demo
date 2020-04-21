@@ -51,4 +51,5 @@ Resources:
             - ec2:DescribeInstances
             - ec2:CreateTags
             - ec2:CreateImage
+            - ssm:PutParameter
             Resource: "*"

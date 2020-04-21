@@ -8,8 +8,16 @@ Parameters:
     Type: String
   VPCId:
     Type: String
+  LambdaFunc:
+    Type: String
 
 Resources:
+
+  LambdaOnDelete:
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken: !GetAtt LambdaFunc.Arn
+
   JenkinsInstance:
     Type: AWS::EC2::Instance
     # CreationPolicy:

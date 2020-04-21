@@ -123,6 +123,8 @@ Resources:
       Parameters:
         EnvironmentName:
           !Ref EnvironmentName
+        LambdaFunc:
+          !Ref LambdaFunc
         PublicSubnet2:
           Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]
         SSHIngressSecurityGroup:
@@ -131,7 +133,6 @@ Resources:
           Fn::GetAtt: [VPCStack, Outputs.VPC]
 
   LambdaFunc:
-    DependsOn: JenkinsInstance
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/lambda.yml

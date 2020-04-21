@@ -80,7 +80,6 @@ Resources:
           CidrIp: 0.0.0.0/0
 
   AMICreateFunction:
-    DependsOn: MyInstance
     Type: AWS::Lambda::Function
     Properties: 
       Code: 

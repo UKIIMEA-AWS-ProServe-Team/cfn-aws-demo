@@ -1,6 +1,7 @@
 # Need to deal with terminated instances that have the tag
 import boto3
 import datetime
+import cfn-response
  
 ec = boto3.client('ec2')
 store = boto3.client('ssm')
@@ -71,4 +72,6 @@ def lambda_handler(event, context):
                 Type='String',
                 Overwrite=True,
                 Tier='Standard',
-            )   
+            )
+
+    cfnresponse.send(event, context, cfnresponse.SUCCESS)   
