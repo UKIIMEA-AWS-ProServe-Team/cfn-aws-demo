@@ -1,7 +1,8 @@
 # Need to deal with terminated instances that have the tag
 import boto3
 import datetime
-import cfn-response
+import cfnresponse
+import json
  
 ec = boto3.client('ec2')
 store = boto3.client('ssm')
@@ -10,6 +11,7 @@ def lambda_handler(event, context):
 
     print "This is the event received:\n%s" % (event)
     if event['RequestType'] == "Delete":  # Only run this on stack delete
+
         reservations = ec.describe_instances( 
             Filters=[
                 {'Name': 'tag-key', 'Values': ['Backup1357']}
@@ -73,5 +75,5 @@ def lambda_handler(event, context):
                 Overwrite=True,
                 Tier='Standard',
             )
-
+    print "Got to end!"
     cfnresponse.send(event, context, cfnresponse.SUCCESS)   
