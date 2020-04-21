@@ -97,6 +97,6 @@ Resources:
         Fn::Base64: !Sub |
             #!/bin/bash -xe
             sudo apt install awscli -y
-            sudo sed -i '/failure/ a sudo tar -cvf jenkins_backup.tar -C /var/lib/jenkins/ --exclude "./plugins/*" .\n \t sudo aws s3 cp jenkins_backup.tar s3://jenkins-backup-ianp/jenkins_backup.tar' /etc/init.d/jenkins
+            sudo sed -i '/failure/ a sudo tar -cvf /var/tmp/jenkins_backup.tar -C /var/lib/jenkins/ --exclude "./plugins/*" .\n \t sudo aws s3 cp /var/tmp/jenkins_backup.tar s3://jenkins-backup-ianp/jenkins_backup.tar' /etc/init.d/jenkins
             sudo aws s3 cp s3://jenkins-backup-ianp/jenkins_backup.tar /var/tmp/jenkins_backup.tar
             sudo tar -xf /var/tmp/jenkins_backup.tar -C /var/lib/jenkins/
