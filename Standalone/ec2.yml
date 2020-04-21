@@ -89,7 +89,7 @@ Resources:
       Handler: amicreate.lambda_handler
       ReservedConcurrentExecutions: 1
       Role: !GetAtt LambdaExecutionRole.Arn
-      Runtime: python2.7
+      Runtime: python3.8
       Tags:
         -
           Key: Name

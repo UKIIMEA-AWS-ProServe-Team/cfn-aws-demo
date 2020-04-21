@@ -2,14 +2,14 @@
 import boto3
 import datetime
 import cfnresponse
-import json
  
 ec = boto3.client('ec2')
 store = boto3.client('ssm')
 
 def lambda_handler(event, context):
 
-    print "This is the event received:\n%s" % (event)
+    print ("This is the whole event received:\n%s" % (event))
+    print ("event['RequestType'] %s" % (event['RequestType']))
     if event['RequestType'] == "Delete":  # Only run this on stack delete
 
         reservations = ec.describe_instances( 
@@ -32,9 +32,9 @@ def lambda_handler(event, context):
                 continue
             count += 1
             if count > 1:
-                print("Oops more than 1 instance - something's wrong - aborting!")
+                print ("Oops more than 1 instance - something's wrong - aborting!")
                 return
-            print "Found instance %s" % (instance['InstanceId'])
+            print ("Found instance %s" % (instance['InstanceId']))
             # Create an AMI from the instance
             JenkinsAMI = ec.create_image(
                 BlockDeviceMappings=[
@@ -62,10 +62,10 @@ def lambda_handler(event, context):
                 ]
             )
 
-            print "AMI %s created from instance %s" % (
+            print ("AMI %s created from instance %s" % (
                 JenkinsAMI['ImageId'],
                 instance['InstanceId']
-            )
+            ))
 
             # Save the AMI id to Parameter store for retrieval by server boot
             saveami = store.put_parameter(
@@ -75,5 +75,6 @@ def lambda_handler(event, context):
                 Overwrite=True,
                 Tier='Standard',
             )
-    print "Got to end!"
-    cfnresponse.send(event, context, cfnresponse.SUCCESS)   
+
+    print ("Got to end!")
+    cfnresponse.send(event, context, cfnresponse.SUCCESS) 
