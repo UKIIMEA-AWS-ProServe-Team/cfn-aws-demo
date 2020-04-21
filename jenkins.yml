@@ -97,7 +97,7 @@ Resources:
         Fn::Base64: !Sub |
             #!/bin/bash -xe
             sudo apt install awscli -y
-            sudo sed -i '/stop)/ a sudo tar -cvf /var/tmp/jenkins_backup.tar -C /var/lib/jenkins/jobs .\n \t sudo aws s3 cp /var/tmp/jenkins_backup.tar s3://jenkins-backup-ianp/jenkins_backup.tar' /etc/init.d/jenkins
-            sudo sed -i '/force-reload)/ a sudo tar -cvf /var/tmp/jenkins_backup.tar -C /var/lib/jenkins/jobs .\n \t sudo aws s3 cp /var/tmp/jenkins_backup.tar s3://jenkins-backup-ianp/jenkins_backup.tar' /etc/init.d/jenkins
+            sudo sed -i '/stop)/ a sudo tar -cvf /var/tmp/jenkins_backup.tar -C /var/lib/jenkins .\n \t sudo aws s3 cp /var/tmp/jenkins_backup.tar s3://jenkins-backup-ianp/jenkins_backup.tar' /etc/init.d/jenkins
+            sudo sed -i '/force-reload)/ a sudo tar -cvf /var/tmp/jenkins_backup.tar -C /var/lib/jenkins .\n \t sudo aws s3 cp /var/tmp/jenkins_backup.tar s3://jenkins-backup-ianp/jenkins_backup.tar' /etc/init.d/jenkins
             sudo aws s3 cp s3://jenkins-backup-ianp/jenkins_backup.tar /var/tmp/jenkins_backup.tar
             sudo tar -xf /var/tmp/jenkins_backup.tar -C /var/lib/jenkins/
