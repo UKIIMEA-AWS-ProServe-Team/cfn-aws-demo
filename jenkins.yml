@@ -10,16 +10,6 @@ Parameters:
     Type: String
   VPCId:
     Type: String
-  JenkinsStartupConfig:
-    Type: String
-    Description: Jenkins config location on S3 bucket (TAR file). Leave blank for no initial config.
-  JenkinsOutputBucket:
-      Type: String
-      Description: S3 bucket to store Jenkins config on exit
-
-Conditions:
-  NoJenkinsConfig: !Equals [ !Ref JenkinsStartupConfig, '' ]
-  JenkinsConfig: !Not [ !Equals [ !Ref JenkinsStartupConfig, '' ] ]
 
 Resources:
   DXCS3Role:
@@ -89,9 +79,8 @@ Resources:
       Path: /
       Roles:
         - !Ref 'DXCS3Role'
-  JenkinsInstance1:
+  JenkinsInstance:
     Type: AWS::EC2::Instance
-    Condition: JenkinsConfig
     Properties:
       InstanceType: t3a.small
       KeyName: automation
@@ -107,40 +96,7 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
             #!/bin/bash -xe
-            # sudo yum install java-1.8.0 -y
-            # sudo yum update –y
-            # sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo
-            # sudo rpm --import http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
-            # sudo yum install jenkins -y --nogpgcheck
-            sudo aws s3 cp ${JenkinsStartupConfig} /var/tmp/jenkins_backup.tar
+            sudo apt install awscli -y
+            sudo aws s3 cp s3://cfn-demo-ianp/jenkins_backup.tar /var/tmp/jenkins_backup.tar
             sudo tar -xf /var/tmp/jenkins_backup.tar -C /var/lib/jenkins/
-            # sudo service jenkins start
-            # sudo chkconfig jenkins on
-            sudo sed -i '/echo -n "Shutting .*/a sudo tar -cvf jenkins_backup.tar -C /var/lib/jenkins/ .\n \t sudo aws s3 cp jenkins_backup.tar ${JenkinsOutputBucket}$(date +%Y_%m_%d_%T)_jenkins_backup.tar' /etc/init.d/jenkins
-  JenkinsInstance2:
-    Type: AWS::EC2::Instance
-    Condition: NoJenkinsConfig
-    Properties:
-      InstanceType: t3a.small
-      KeyName: automation
-      NetworkInterfaces:
-        - NetworkInterfaceId: !Ref JenkinsENI
-          DeviceIndex: 0
-      ImageId: ami-07fbc9b146a48f4e8
-      IamInstanceProfile: !Ref 'FullS3BucketsInstanceProfile'
-      Tags:
-        -
-          Key: Name
-          Value: !Sub ${EnvironmentName}-Jenkins
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash -xe
-          # sudo yum install java-1.8.0 -y
-          # sudo yum update –y
-          # sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo
-          # sudo rpm --import http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
-          # sudo yum install jenkins -y --nogpgcheck
-          # sudo service jenkins start
-          # sudo chkconfig jenkins on
-          sudo sed -i '/echo -n "Shutting .*/a sudo tar -cvf jenkins_backup.tar -C /var/lib/jenkins/ .\n \t sudo aws s3 cp jenkins_backup.tar ${JenkinsOutputBucket}$(date +%Y_%m_%d_%T)_jenkins_backup.tar' /etc/init.d/jenkins
-          
+            sudo sed -i '/Stopping/ a sudo tar -cvf jenkins_backup.tar -C /var/lib/jenkins/ .\n \t sudo aws s3 cp jenkins_backup.tar s3://cfn-demo-ianp/jenkins_backup.tar' jenkins

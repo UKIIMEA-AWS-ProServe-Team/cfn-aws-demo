@@ -30,14 +30,6 @@ Parameters:
     Type: String
     Default: 10.192.11.0/24
 
-  JenkinsStartupConfig:
-    Type: String
-    Description: Jenkins config location on S3 bucket (TAR file). Leave blank for no initial config.
-  JenkinsOutputBucket:
-    Type: String
-    Description: S3 bucket to store Jenkins config on exit 
-    Default: s3//jenkins-backup-ianp
-
 Resources:
 
   VPCStack:
@@ -49,80 +41,6 @@ Resources:
         VpcCIDR: !Ref VpcCIDR
         PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
         PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
-
-  MgrENI:
-    Type: AWS::CloudFormation::Stack
-    Properties: 
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/MgrENI.yml
-      Parameters:
-        EnvironmentName: !Ref EnvironmentName
-        DockerSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.DockerSecurityGroup]
-        SSHIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
-        WebIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.WebIngressSecurityGroup]
-        PublicSubnet1:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
-
-  DockerMgr:
-    Type: AWS::CloudFormation::Stack
-    Properties: 
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/EC2-DockerMgr.yml
-      Parameters:
-        EnvironmentName: !Ref EnvironmentName
-        MgrENI:
-          Fn::GetAtt: [MgrENI, Outputs.MgrENI]
-
-  WorkerNodeLaunchTemplate:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/EC2-WorkerLaunchTemplate.yml
-      Parameters:
-        EnvironmentName: !Ref EnvironmentName
-        DockerSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.DockerSecurityGroup]
-        SSHIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
-        WebIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.WebIngressSecurityGroup]
-        PublicSubnet1:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
-
-  ASGGroup:
-    DependsOn: 
-      - DockerMgr
-      - DemoALB
-      - WorkerNodeLaunchTemplate
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/ASG.yml
-      Parameters:
-        EnvironmentName: !Ref EnvironmentName
-        NumberOfWorkerNodes: !Ref NumberOfWorkerNodes
-        WorkerNodeLaunchTemplate: 
-          Fn::GetAtt: [WorkerNodeLaunchTemplate, Outputs.WorkerNodeLaunchTemplate]
-        PublicSubnet1:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
-        PublicSubnet2:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]
-        ALBTargetGroup:
-          Fn::GetAtt: [DemoALB, Outputs.ALBTargetGroup]
-
-  DemoALB:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/ALB.yml
-      Parameters:
-        PublicSubnet1:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
-        PublicSubnet2:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]
-        WebIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.WebIngressSecurityGroup]
-        VPCId:
-           Fn::GetAtt: [VPCStack, Outputs.VPC]
-        EnvironmentName: !Ref EnvironmentName
 
   JenkinsInstance:
     Type: AWS::CloudFormation::Stack
@@ -137,10 +55,6 @@ Resources:
           Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
         VPCId:
           Fn::GetAtt: [VPCStack, Outputs.VPC]
-        JenkinsStartupConfig:
-          !Ref JenkinsStartupConfig
-        JenkinsOutputBucket:
-          !Ref JenkinsOutputBucket
 
   # LambdaFunc:
   #   Type: AWS::CloudFormation::Stack
