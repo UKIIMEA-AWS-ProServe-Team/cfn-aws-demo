@@ -9,7 +9,7 @@ def lambda_handler(event, context):
 
     print "This is the event received:\n%s" % (event)
     if event['RequestType'] == "Delete":  # Only run this on stack delete
-        reservations = ec.describe_instances(
+        reservations = ec.describe_instances( 
             Filters=[
                 {'Name': 'tag-key', 'Values': ['Backup1357']}
             ]
