@@ -36,6 +36,7 @@ Parameters:
   JenkinsOutputBucket:
     Type: String
     Description: S3 bucket to store Jenkins config on exit 
+    Default: s3//jenkins-backup-ianp
 
 Resources:
 
