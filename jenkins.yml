@@ -16,7 +16,7 @@ Parameters:
   JenkinsOutputBucket:
       Type: String
       Description: S3 bucket to store Jenkins config on exit
-      
+
 Conditions:
   NoJenkinsConfig: !Equals [ !Ref JenkinsStartupConfig, '' ]
   JenkinsConfig: !Not [ !Equals [ !Ref JenkinsStartupConfig, '' ] ]
@@ -143,3 +143,4 @@ Resources:
           # sudo service jenkins start
           # sudo chkconfig jenkins on
           sudo sed -i '/echo -n "Shutting .*/a sudo tar -cvf jenkins_backup.tar -C /var/lib/jenkins/ .\n \t sudo aws s3 cp jenkins_backup.tar ${JenkinsOutputBucket}$(date +%Y_%m_%d_%T)_jenkins_backup.tar' /etc/init.d/jenkins
+          
