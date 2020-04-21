@@ -3,7 +3,7 @@ name: Sync to S3
 on:
   push:
     branches:
-    - master
+    - tomasz
 
 jobs:
   deploy:
