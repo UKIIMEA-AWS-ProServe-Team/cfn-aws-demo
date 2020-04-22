@@ -77,6 +77,7 @@ def lambda_handler(event, context):
                 Overwrite=True,
                 Tier='Standard',
             )
-
+    responseData = {}
+    responseData['Test'] = "test data"
     print ("Got to end!")
-    cfnresponse.send(event, context, cfnresponse.SUCCESS, "None")
+    cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
