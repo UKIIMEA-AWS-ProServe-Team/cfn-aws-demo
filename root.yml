@@ -125,7 +125,7 @@ Resources:
         EnvironmentName:
           !Ref EnvironmentName
         LambdaArn:
-          Fn::GettAtt: [AMICreateFunction, Outputs.LambdaArn]
+          Fn::GetAtt: [AMICreateFunction, Outputs.LambdaArn]
         PublicSubnet2:
           Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]
         SSHIngressSecurityGroup:
