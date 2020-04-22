@@ -1,86 +1,85 @@
-# Need to deal with terminated instances that have the tag
-import boto3
-import datetime
-import cfnresponse
+from crhelper import CfnResource
 import json
- 
-ec = boto3.client('ec2')
-store = boto3.client('ssm')
+import boto3
 
-def lambda_handler(event, context):
+helper = CfnResource()
+
+@helper.create
+@helper.update
+def no_op(_, __):
+    pass
+@helper.delete
+def myfunc(event, _):
+    ec = boto3.client('ec2')
+    store = boto3.client('ssm')
 
     print ("This is the whole event received:")
     print ("event: ", json.dumps(event))
-    if event['RequestType'] == "Delete":  # Only run this on stack delete - should wrap this in try?
 
-        reservations = ec.describe_instances( 
-            Filters=[
-                {'Name': 'tag-key', 'Values': ['Backup1357']}
-            ]
-        ).get(
-            'Reservations', []
+    reservations = ec.describe_instances( 
+        Filters=[
+            {'Name': 'tag-key', 'Values': ['Backup1357']}
+        ]
+    ).get(
+        'Reservations', []
+    )
+
+    instances = sum(
+        [
+            [i for i in r['Instances']]
+            for r in reservations
+        ], [])
+
+    count = 0
+    for instance in instances:
+        if instance['State']['Name'] != 'running':      # don't want to backup non-running instances left after rapid restart of stack
+            continue
+        count += 1                                      # using counts is clunky
+        if count > 1:
+            print ("Oops more than 1 instance - something's wrong - aborting!")
+            return
+        print ("Found instance %s" % (instance['InstanceId']))
+        # Create an AMI from the instance
+        JenkinsAMI = ec.create_image(
+            BlockDeviceMappings=[
+                {
+                    'DeviceName': '/dev/xvda',
+                    'Ebs': {
+                        'DeleteOnTermination': True,
+                        'VolumeSize': 50                    # Need to get this value from somewhere not hard code
+                        }
+                    },
+            ],
+            Description='Jenkins AMI from instance',
+            InstanceId=instance['InstanceId'],
+            # Need unique name here hence addition of datetime
+            Name='JenkinsAMI ' + str(datetime.datetime.utcnow()).replace(':' , '-') 
         )
 
-        instances = sum(
-            [
-                [i for i in r['Instances']]
-                for r in reservations
-            ], [])
+        # Tag the AMI
+        ec.create_tags(
+            Resources=[
+                JenkinsAMI['ImageId']
+            ],
+            Tags=[
+                {'Key': 'Name', 'Value': "Jenkins AMI"},
+                {'Key': 'Date', 'Value': "UTC: %s" % (str(datetime.datetime.utcnow()))}
+            ]
+        )
 
-        count = 0
-        for instance in instances:
-            if instance['State']['Name'] != 'running':      # don't want to backup non-running instances left after rapid restart of stack
-                continue
-            count += 1                                      # using counts is clunky
-            if count > 1:
-                print ("Oops more than 1 instance - something's wrong - aborting!")
-                return
-            print ("Found instance %s" % (instance['InstanceId']))
-            # Create an AMI from the instance
-            JenkinsAMI = ec.create_image(
-                BlockDeviceMappings=[
-                    {
-                        'DeviceName': '/dev/xvda',
-                        'Ebs': {
-                            'DeleteOnTermination': True,
-                            'VolumeSize': 50                    # Need to get this value from somewhere not hard code
-                            }
-                        },
-                ],
-                Description='Jenkins AMI from instance',
-                InstanceId=instance['InstanceId'],
-                # Need unique name here hence addition of datetime
-                Name='JenkinsAMI ' + str(datetime.datetime.utcnow()).replace(':' , '-') 
-            )                      
+        print ("AMI %s created from instance %s" % (
+            JenkinsAMI['ImageId'],
+            instance['InstanceId']
+        ))
 
-            # Tag the AMI
-            ec.create_tags(
-                Resources=[
-                    JenkinsAMI['ImageId']
-                ],
-                Tags=[
-                    {'Key': 'Name', 'Value': "Jenkins AMI"},
-                    {'Key': 'Date', 'Value': "UTC: %s" % (str(datetime.datetime.utcnow()))}
-                ]
-            )
+        # Save the AMI id to Parameter store for retrieval by server boot
+        saveami = store.put_parameter(
+            Name='/JenkinsAMIId',
+            Value=JenkinsAMI['ImageId'],
+            Type='String',
+            Overwrite=True,
+            Tier='Standard',
+        )
 
-            print ("AMI %s created from instance %s" % (
-                JenkinsAMI['ImageId'],
-                instance['InstanceId']
-            ))
-
-            # Save the AMI id to Parameter store for retrieval by server boot
-            saveami = store.put_parameter(
-                Name='/JenkinsAMIId',
-                Value=JenkinsAMI['ImageId'],
-                Type='String',
-                Overwrite=True,
-                Tier='Standard',
-            )
-
-    print ("Got to end!")
-    cfnresponse.send(event, context, cfnresponse.SUCCESS, "None")
-
-event = {}
-event['RequestType'] = "Delete"
-lambda_handler(event, None) 
+def handler(event, context):
+    helper(event, context)
