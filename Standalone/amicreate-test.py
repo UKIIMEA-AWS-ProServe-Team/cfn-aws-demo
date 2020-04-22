@@ -80,3 +80,7 @@ def lambda_handler(event, context):
 
     print ("Got to end!")
     cfnresponse.send(event, context, cfnresponse.SUCCESS, "None")
+
+event = {}
+event['RequestType'] = "Delete"
+lambda_handler(event, None) 
