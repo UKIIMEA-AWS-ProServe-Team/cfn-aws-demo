@@ -81,3 +81,4 @@ def lambda_handler(event, context):
     responseData['Test'] = "test data"
     print ("Got to end!")
     cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
+    return None
