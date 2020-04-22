@@ -55,5 +55,5 @@ Resources:
             Resource: "*"
 
 Outputs:
-  AMICreateFunctionArn:
+  LambdaArn:
     Value: !GetAtt AMICreateFunction.Arn
