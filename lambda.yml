@@ -15,12 +15,12 @@ Resources:
       Handler: amicreate.lambda_handler
       ReservedConcurrentExecutions: 0
       Role: !GetAtt LambdaExecutionRole.Arn
-      Runtime: python2.7
+      Runtime: python3.8
       Tags:
         -
           Key: Name
           Value: !Sub ${EnvironmentName}-Lambda
-      Timeout: 15
+      Timeout: 60
 
   LambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -53,3 +53,7 @@ Resources:
             - ec2:CreateImage
             - ssm:PutParameter
             Resource: "*"
+
+Outputs:
+  LambdaArn:
+    Value: !GetAtt AMICreateFunction.Arn
