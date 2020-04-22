@@ -8,8 +8,11 @@ Parameters:
     Type: String
   VPCId:
     Type: String
-  LambdaFunc:
+  AMICreateFunctionArn:
     Type: String
+  AMIId:
+    Type : 'AWS::SSM::Parameter::Value<String>'
+    Default: JenkinsAMIId
 
 Resources:
 
@@ -17,7 +20,7 @@ Resources:
     DependsOn: JenkinsInstance
     Type: AWS::CloudFormation::CustomResource
     Properties:
-      ServiceToken: !GetAtt LambdaFunc.Arn
+      ServiceToken: !Ref AMICreateFunctionArn
 
   JenkinsInstance:
     Type: AWS::EC2::Instance
@@ -25,7 +28,7 @@ Resources:
     #   ResourceSignal:
     #     Timeout: PT10M
     Properties:
-      ImageId: ami-07fbc9b146a48f4e8
+      ImageId: !Ref AMIId
       InstanceType: t3a.small
       KeyName: automation
       NetworkInterfaces:
