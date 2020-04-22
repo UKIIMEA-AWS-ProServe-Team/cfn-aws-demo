@@ -117,6 +117,7 @@ Resources:
         EnvironmentName: !Ref EnvironmentName
 
   JenkinsInstance:
+    DependsOn: LambdaFunc
     Type: AWS::CloudFormation::Stack
     Properties: 
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/jenkins.yml
