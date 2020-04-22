@@ -9,6 +9,7 @@ helper = CfnResource()
 @helper.update
 def no_op(_, __):
     pass
+
 @helper.delete
 def myfunc(event, _):
     ec = boto3.client('ec2')
@@ -82,5 +83,5 @@ def myfunc(event, _):
             Tier='Standard',
         )
 
-def handler(event, context):
+def lambda_handler(event, context):
     helper(event, context)

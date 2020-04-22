@@ -9,8 +9,9 @@ helper = CfnResource()
 @helper.update
 def no_op(_, __):
     pass
+
 @helper.delete
-def myfunc(event, _):
+def myFunc(event, _):
     ec = boto3.client('ec2')
     store = boto3.client('ssm')
 
