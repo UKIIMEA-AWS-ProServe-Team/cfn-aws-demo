@@ -13,7 +13,7 @@ def no_op(_, __):
     pass
 
 @helper.delete
-def delete(_, __):
+def delete(event, context):
 
     print ("This is the whole event received:")
     
