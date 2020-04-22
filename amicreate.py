@@ -1,6 +1,7 @@
 from crhelper import CfnResource
 import json
 import boto3
+import datetime
 
 helper = CfnResource()
 
@@ -73,7 +74,7 @@ def myfunc(event, _):
         ))
 
         # Save the AMI id to Parameter store for retrieval by server boot
-        saveami = store.put_parameter(
+        store.put_parameter(
             Name='/JenkinsAMIId',
             Value=JenkinsAMI['ImageId'],
             Type='String',
