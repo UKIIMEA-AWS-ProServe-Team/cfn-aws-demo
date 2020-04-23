@@ -30,6 +30,9 @@ Resources:
         -
           Key: Name
           Value: !Sub ${EnvironmentName}-Jenkins
+        -
+          Key: Backup1357
+          Value: !Sub ${EnvironmentName}-AMI
       UserData:
         Fn::Base64:
           !Sub |
