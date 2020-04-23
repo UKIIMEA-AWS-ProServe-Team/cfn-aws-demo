@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  LambdaArn:
+    Type: String 
+
+Resources:  
+  LambdaOnDelete:
+    DependsOn: JenkinsInstance
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken: !Ref LambdaArn
