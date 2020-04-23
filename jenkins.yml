@@ -76,4 +76,7 @@ Resources:
 Outputs:
   JenkinsPubIp:
     Description: IP address to access Jenkins
-    Value: Fn::Join: [ ":", [ !GetAtt JenkinsInstance.PublicIp, 8080 ] ]
+    Value: !Join
+              - ''
+              - - !GetAtt JenkinsInstance.PublicIp
+              - ':8080'
