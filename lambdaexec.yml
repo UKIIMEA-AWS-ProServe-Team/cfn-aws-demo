@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Parameters:
-  Description: ARN that points to earlier created Lambda
   LambdaArn:
+    Description: ARN that points to earlier created Lambda
     Type: String 
 
 # Execute the Lambda
