@@ -102,4 +102,3 @@ Outputs:
   DockerMgrPubIp:
     Description: Public IP to reach Docker Swarm Manager
     Value: !GetAtt DockerMgr.PublicIp
-
