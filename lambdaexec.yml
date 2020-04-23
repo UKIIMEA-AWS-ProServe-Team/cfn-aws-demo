@@ -6,7 +6,6 @@ Parameters:
 
 Resources:  
   LambdaOnDelete:
-    DependsOn: JenkinsInstance
     Type: AWS::CloudFormation::CustomResource
     Properties:
       ServiceToken: !Ref LambdaArn
