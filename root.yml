@@ -1,5 +1,5 @@
 
-# Demo: Not for production use, no security validation
+# Demo: Not for production use, no security validation.
 AWSTemplateFormatVersion: "2010-09-09"
 
 Parameters:
