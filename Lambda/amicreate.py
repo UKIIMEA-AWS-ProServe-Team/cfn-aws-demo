@@ -15,8 +15,6 @@ def no_op(_, __):
 @helper.delete
 def delete(event, context):
 
-    print ("This is the whole event received:")
-    
     print ("event: ", json.dumps(event))
 
     reservations = ec.describe_instances( 
@@ -87,7 +85,3 @@ def delete(event, context):
 
 def lambda_handler(event, context):
     helper(event, context)
-
-# event ={}
-# event['RequestType'] = "Delete"
-# lambda_handler(event, None)

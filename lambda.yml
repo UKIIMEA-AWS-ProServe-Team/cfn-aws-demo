@@ -56,4 +56,5 @@ Resources:
 
 Outputs:
   LambdaArn:
+    Description: ARN of Lambda function; used when function is called by lambdaexec.yml
     Value: !GetAtt AMICreateFunction.Arn

@@ -74,6 +74,6 @@ Resources:
           Value: !Sub ${EnvironmentName}-JenkinsENI
 
 Outputs:
-
   JenkinsPubIp:
-    Value: !GetAtt JenkinsInstance.PublicIp
+    Description: IP address to access Jenkins
+    Value: !Join [ ":", [!GetAtt JenkinsInstance.PublicIp, 8080]

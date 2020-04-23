@@ -5,7 +5,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
 
   EnvironmentName:
-    Description: A UNIQUE name for the environment
+    Description: A *UNIQUE* name that does not already exist when CFN runs.
     Type: String
     Default: DEMO
 
