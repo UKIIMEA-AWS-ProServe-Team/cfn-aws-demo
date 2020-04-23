@@ -99,6 +99,6 @@ Resources:
         - !Sub ${EnvironmentName}-EC2-SSM-Params-Role
 
 Outputs:
-  Description: Public IP to reach Docker Swarm Manager
   DockerMgrPubIp:
+    Description: Public IP to reach Docker Swarm Manager
     Value: !GetAtt DockerMgr.PublicIp
