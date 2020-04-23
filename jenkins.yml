@@ -24,9 +24,9 @@ Resources:
 
   JenkinsInstance:
     Type: AWS::EC2::Instance
-    # CreationPolicy:
-    #   ResourceSignal:
-    #     Timeout: PT10M
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT10M
     Properties:
       ImageId: !Ref AMIId
       InstanceType: t3a.small
@@ -38,11 +38,12 @@ Resources:
         -
           Key: Name
           Value: !Sub ${EnvironmentName}-Jenkins
-      # UserData:
-      #   Fn::Base64:
-      #     !Sub |
-      #       #!/bin/bash -xe
-      #       /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash -xe
+            sleep 10;
+            /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
 
   JenkinsSecurityGroup:
     Type: AWS::EC2::SecurityGroup
