@@ -76,7 +76,4 @@ Resources:
 Outputs:
   JenkinsPubIp:
     Description: IP address to access Jenkins
-    Value: !Join
-              - ':'
-              - - !GetAtt JenkinsInstance.PublicIp
-              - '8080'
+    Value: !GetAtt JenkinsInstance.PublicIp
