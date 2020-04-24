@@ -73,6 +73,12 @@ Resources:
           Key: Name
           Value: !Sub ${EnvironmentName}-JenkinsENI
 
+  JenkinsEIPAssoc:        
+    Type: AWS::EC2::EIPAssociation
+    Properties: 
+      AllocationId: eipalloc-08c04d22327eb87e9
+      InstanceId: !Ref JenkinsInstance
+
 Outputs:
   JenkinsPubIp:
     Description: IP address to access Jenkins
