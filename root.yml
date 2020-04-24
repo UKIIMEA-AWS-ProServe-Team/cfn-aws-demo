@@ -1,7 +1,7 @@
 
-# Demo: Not for production use, no security validation.
-AWSTemplateFormatVersion: "2010-09-09"
+# Demo: Not for production use, not production quality!
 
+AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
 
   EnvironmentName:
@@ -147,5 +147,3 @@ Resources:
       Parameters:
         LambdaArn:
           Fn::GetAtt: [LambdaFunc, Outputs.LambdaArn]
-
-          
