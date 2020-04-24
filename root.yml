@@ -147,3 +147,5 @@ Resources:
       Parameters:
         LambdaArn:
           Fn::GetAtt: [LambdaFunc, Outputs.LambdaArn]
+
+          
