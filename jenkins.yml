@@ -73,6 +73,7 @@ Resources:
           Key: Name
           Value: !Sub ${EnvironmentName}-JenkinsENI
 
+  # This is pre-existing - if EIP is deleted will need AllocationId updating      
   JenkinsEIPAssoc:        
     Type: AWS::EC2::EIPAssociation
     Properties: 
