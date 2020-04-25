@@ -4,6 +4,8 @@ import boto3
 import datetime
 
 helper = CfnResource()
+ec = boto3.client('ec2')
+store = boto3.client('ssm')
 
 @helper.create
 @helper.update
@@ -12,8 +14,6 @@ def no_op(_, __):
 
 @helper.delete
 def delete(event, _):
-    ec = boto3.client('ec2')
-    store = boto3.client('ssm')
 
     print ("This is the whole event received:")
     print ("event: ", json.dumps(event))
