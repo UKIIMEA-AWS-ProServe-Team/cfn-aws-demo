@@ -83,5 +83,7 @@ def delete(event, _):
             Tier='Standard',
         )
 
+event={}
+event['RequestType'] = "Delete"
 def lambda_handler(event, context):
     helper(event, context)
