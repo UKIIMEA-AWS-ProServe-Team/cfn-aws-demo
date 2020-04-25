@@ -1,6 +1,7 @@
 from crhelper import CfnResource
 import json
 import boto3
+import datetime
 
 helper = CfnResource()
 
@@ -8,8 +9,9 @@ helper = CfnResource()
 @helper.update
 def no_op(_, __):
     pass
+
 @helper.delete
-def myfunc(event, _):
+def delete(event, _):
     ec = boto3.client('ec2')
     store = boto3.client('ssm')
 
@@ -81,5 +83,5 @@ def myfunc(event, _):
             Tier='Standard',
         )
 
-def handler(event, context):
+def lambda_handler(event, context):
     helper(event, context)
