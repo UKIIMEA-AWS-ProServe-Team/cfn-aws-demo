@@ -26,13 +26,8 @@ Resources:
       LaunchTemplate:
         LaunchTemplateId: !Ref WorkerNodeLaunchTemplate
         Version: '1'
-<<<<<<< HEAD
-      DesiredCapacity: 2
-      MinSize: 2
-=======
       DesiredCapacity: !Ref NumberOfWorkerNodes
-      MinSize: 1
->>>>>>> 42e5c9240fba6e1019478da4b1e0982774900570
+      MinSize: 2
       MaxSize: 10
       TargetGroupARNs:
         - !Ref ALBTargetGroup
