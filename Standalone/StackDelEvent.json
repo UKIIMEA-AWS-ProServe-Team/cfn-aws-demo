@@ -1,0 +1,14 @@
+event:  
+{
+    "RequestType": "Delete",
+    "ServiceToken": "arn:aws:lambda:eu-west-2:386747223641:function:ian2-LambdaFunc-1BYSBR0FDZRTT-AMICreateFunction-1QAUGS3X92KOA",
+    "ResponseURL": "https://cloudformation-custom-resource-response-euwest2.s3.eu-west-2.amazonaws.com/arn%3Aaws%3Acloudformation%3Aeu-west-2%3A386747223641%3Astack/ian2-LambdaExec-ZB03IJDSN91J/df3aabd0-857a-11ea-8ea2-06af0f49b59c%7CLambdaOnDelete%7C0bd44f02-346c-4f66-8c19-29c9b4c2a14c?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20200423T162958Z&X-Amz-SignedHeaders=host&X-Amz-Expires=7200&X-Amz-Credential=AKIAZYWU4JB3634ZJWTJ%2F20200423%2Feu-west-2%2Fs3%2Faws4_request&X-Amz-Signature=99921d4f9287fce8a333ce48676e7e2f1956d17c079491861ea4e3da4e3f047b",
+    "StackId": "arn:aws:cloudformation:eu-west-2:386747223641:stack/ian2-LambdaExec-ZB03IJDSN91J/df3aabd0-857a-11ea-8ea2-06af0f49b59c",
+    "RequestId": "0bd44f02-346c-4f66-8c19-29c9b4c2a14c",
+    "LogicalResourceId": "LambdaOnDelete",
+    "PhysicalResourceId": "ian2-LambdaExec-ZB03IJDSN91J_LambdaOnDelete_ECJ907AK",
+    "ResourceType": "AWS::CloudFormation::CustomResource",
+    "ResourceProperties": {
+        "ServiceToken": "arn:aws:lambda:eu-west-2:386747223641:function:ian2-LambdaFunc-1BYSBR0FDZRTT-AMICreateFunction-1QAUGS3X92KOA"
+    }
+}
