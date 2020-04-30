@@ -27,7 +27,16 @@ Resources:
         LaunchTemplateId: !Ref WorkerNodeLaunchTemplate
         Version: '1'
       DesiredCapacity: 2
-      MinSize: 1
+      MinSize: 2
       MaxSize: 10
       TargetGroupARNs:
         - !Ref ALBTargetGroup
+      UpdatePolicy:
+        AutoScalingRollingUpdate:
+          MaxBatchSize: 2
+          MinInstancesInService: 2
+          MinSuccessfulInstancesPercent: 100
+          PauseTime: PT5M
+          # SuspendProcesses:
+          #   - List of processes
+          WaitOnResourceSignals: true

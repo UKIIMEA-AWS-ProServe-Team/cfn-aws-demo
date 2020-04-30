@@ -51,7 +51,7 @@ Resources:
               systemctl start docker;
               usermod -aG docker ec2-user;
               $(aws ssm get-parameter --name /SwarmJoinCmd --region eu-west-2 | jq -r '.Parameter.Value');
-
+              /opt/aws/bin/cfn-signal --exit-code 0 --resource DockerMgr --region ${AWS::Region} --stack ${AWS::StackName};
 
   WorkerRole:
     Type: AWS::IAM::Role
