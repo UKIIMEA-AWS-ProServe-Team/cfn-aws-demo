@@ -30,6 +30,23 @@ Parameters:
     Type : 'AWS::SSM::Parameter::Value<String>'
     Default: JenkinsAMIId
 
+Mappings: 
+  Linux2Map: 
+    us-east-1: "ami-0323c3dd2da7fb37d"
+    us-east-2: "ami-0f7919c33c90f5b58"
+    us-west-1: "ami-06fcc1f0bc2c8943f"
+    us-west-2: "ami-0d6621c01e8c2de2c"
+    eu-west-1: "ami-06ce3edf0cff21f07"
+    eu-west-2: "ami-01a6e31ac994bbc09"
+
+  UbuntuMap:
+    us-east-1: "ami-085925f297f89fce1"
+    us-east-2: "ami-07c1207a9d40bc3bd"
+    us-west-1: "ami-0f56279347d2fa43e"
+    us-west-2: "ami-003634241a8fcdec0"
+    eu-west-1: "ami-0dad359ff462124ca"  # V20.04 LTS
+    eu-west-2: "ami-0917237b4e71c5759"  # V20.04 LTS
+
 Resources:
 
   MyInstance:
