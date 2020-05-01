@@ -48,10 +48,9 @@ Resources:
   ScaleUpPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
     Properties:
-      AdjustmentType: PercentChangeInCapacity
+      AdjustmentType: ChangeInCapacity
       AutoScalingGroupName: !Ref ASGGroup
       Cooldown: 300
-      MinAdjustmentMagnitude: 2
       PolicyType: SimpleScaling
       ScalingAdjustment: 2
   CPUAlarmHigh:
@@ -61,12 +60,12 @@ Resources:
       Statistic: Average
       Threshold: '10'
       AlarmDescription: Alarm if CPU too high or metric disappears indicating instance is down
-      Period: '60'
+      Period: '10'
       AlarmActions:
       - Ref: ScaleUpPolicy
       Namespace: AWS/EC2
       Dimensions:
       - Name: ASGGroupName
-        Value: !Ref: ASGGroup
+        Value: !Ref ASGGroup
       ComparisonOperator: GreaterThanThreshold
       MetricName: CPUUtilization
