@@ -53,6 +53,7 @@ Resources:
       Cooldown: 300
       PolicyType: SimpleScaling
       ScalingAdjustment: 2
+      
   CPUAlarmHigh:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -65,7 +66,7 @@ Resources:
       - Ref: ScaleUpPolicy
       Namespace: AWS/EC2
       Dimensions:
-      - Name: ASGGroupName
+      - Name: AutoScalingGroupName
         Value: !Ref ASGGroup
       ComparisonOperator: GreaterThanThreshold
       MetricName: CPUUtilization
