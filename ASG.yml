@@ -35,8 +35,22 @@ Resources:
       AutoScalingRollingUpdate:
         MaxBatchSize: 2
         MinInstancesInService: 2
-        MinSuccessfulInstancesPercent: 100
+        MinSuccessfulInstancesPercent: 50
         PauseTime: PT5M
-        # SuspendProcesses:
-        #   - List of processes
+        SuspendProcesses:
+          - HealthCheck
+          - ReplaceUnhealthy
+          - AZRebalance
+          - AlarmNotification
+          - ScheduledActions
         WaitOnResourceSignals: true
+
+  ASGScalingPol:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: PercentChangeInCapacity
+      AutoScalingGroupName: !Ref ASGGroup
+      Cooldown: 300
+      MinAdjustmentMagnitude: 2
+      PolicyType: SimpleScaling
+      ScalingAdjustment: 2
