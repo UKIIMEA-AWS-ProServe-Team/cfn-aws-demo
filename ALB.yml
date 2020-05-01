@@ -18,7 +18,7 @@ Resources:
   ALB: # This is the Application Load Balancer that resides in front of the Worker Nodes
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: !Sub ${AWS::StackName}-ALB
+      Name: !Sub ${EnvironmentName}-ALB
       Scheme: internet-facing
       SecurityGroups:
       - !Ref WebIngressSecurityGroup
@@ -37,7 +37,7 @@ Resources:
       HealthyThresholdCount: 2
       Matcher:
         HttpCode: 200
-      Name: !Sub ${AWS::StackName}-TgtGroup
+      Name: !Sub ${EnvironmentName}-TgtGroup
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 4
