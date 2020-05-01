@@ -45,7 +45,7 @@ Resources:
           - ScheduledActions
         WaitOnResourceSignals: true
 
-  ASGScalingPol:
+  ASGScalingPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
     Properties:
       AdjustmentType: PercentChangeInCapacity
