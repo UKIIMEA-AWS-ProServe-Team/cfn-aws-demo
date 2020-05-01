@@ -45,7 +45,7 @@ Resources:
           - ScheduledActions
         WaitOnResourceSignals: true
 
-  ASGScalingPolicy:
+  ScaleUpPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
     Properties:
       AdjustmentType: PercentChangeInCapacity
@@ -54,3 +54,20 @@ Resources:
       MinAdjustmentMagnitude: 2
       PolicyType: SimpleScaling
       ScalingAdjustment: 2
+  CPUAlarmHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      EvaluationPeriods: '1'
+      Statistic: Average
+      Threshold: '10'
+      AlarmDescription: Alarm if CPU too high or metric disappears indicating instance is down
+      Period: '60'
+      AlarmActions:
+      - Ref: ScaleUpPolicy
+      Namespace: AWS/EC2
+      Dimensions:
+      - Name: ASGGroup
+        Value:
+          Ref: asGroup
+      ComparisonOperator: GreaterThanThreshold
+      MetricName: CPUUtilization
