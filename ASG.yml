@@ -31,12 +31,12 @@ Resources:
       MaxSize: 10
       TargetGroupARNs:
         - !Ref ALBTargetGroup
-      UpdatePolicy:
-        AutoScalingRollingUpdate:
-          MaxBatchSize: 2
-          MinInstancesInService: 2
-          MinSuccessfulInstancesPercent: 100
-          PauseTime: PT5M
-          # SuspendProcesses:
-          #   - List of processes
-          WaitOnResourceSignals: true
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MaxBatchSize: 2
+        MinInstancesInService: 2
+        MinSuccessfulInstancesPercent: 100
+        PauseTime: PT5M
+        # SuspendProcesses:
+        #   - List of processes
+        WaitOnResourceSignals: true
