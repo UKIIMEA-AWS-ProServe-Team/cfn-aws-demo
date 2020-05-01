@@ -66,8 +66,7 @@ Resources:
       - Ref: ScaleUpPolicy
       Namespace: AWS/EC2
       Dimensions:
-      - Name: ASGGroup
-        Value: 
-          Ref: ASGGroup
+      - Name: ASGGroupName
+        Value: !Ref: ASGGroup
       ComparisonOperator: GreaterThanThreshold
       MetricName: CPUUtilization
