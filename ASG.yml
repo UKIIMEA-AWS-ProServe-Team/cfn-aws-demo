@@ -67,7 +67,6 @@ Resources:
       Namespace: AWS/EC2
       Dimensions:
       - Name: ASGGroup
-        Value:
-          Ref: asGroup
+        Value: !Ref: ASGGroup
       ComparisonOperator: GreaterThanThreshold
       MetricName: CPUUtilization
