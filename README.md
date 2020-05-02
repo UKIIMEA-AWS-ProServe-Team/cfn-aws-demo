@@ -13,3 +13,6 @@
 * Creates DNS record in an existing zone - to allow url to be saved
 * ALB is associated with the DNS record
 * When stack deletes saves state of Jenkins via AMI
+
+Takes approx. 10 mins to create in CFN but may take another 5-10 mins to stabilise
+and app to be available.
