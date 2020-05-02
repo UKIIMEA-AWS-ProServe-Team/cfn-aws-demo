@@ -1,10 +1,52 @@
 # 
 AWSTemplateFormatVersion: '2010-09-09'
 
-Parameters:
+Mappings: 
+  Linux2Map: 
+    us-east-1: 
+      AMI: "ami-0323c3dd2da7fb37d"
+    us-east-2:
+      AMI: "ami-0f7919c33c90f5b58"
+    us-west-1:
+      AMI: "ami-06fcc1f0bc2c8943f"
+    us-west-2:
+      AMI: "ami-0d6621c01e8c2de2c"
+    ca-central-1:
+      AMI: "ami-054362537f5132ce2"
+    eu-central-1:
+      AMI: "ami-076431be05aaf8080"
+    eu-west-1:
+      AMI: "ami-06ce3edf0cff21f07"
+    eu-west-2:
+      AMI: "ami-01a6e31ac994bbc09"
+    eu-west-3:
+      AMI: "ami-00077e3fed5089981"
+    eu-north-1:
+      AMI: "ami-0b7a46b4bd694e8a6"
 
-  EnvironmentName:
-    Type: String
+  # UbuntuMap:  # V18.04 LTS
+  #   us-east-1: 
+  #     AMI: "ami-085925f297f89fce1"
+  #   us-east-2:
+  #     AMI: "ami-07c1207a9d40bc3bd"
+  #   us-west-1:
+  #     AMI: "ami-0f56279347d2fa43e"
+  #   us-west-2:
+  #     AMI: "ami-003634241a8fcdec0"
+  #   ca-central-1:
+  #     AMI: "ami-0edd51cc29813e254"
+  #   eu-central-1:
+  #     AMI: "ami-0e342d72b12109f91"
+  #   eu-west-1:
+  #     AMI: "ami-0701e7be9b2a77600"
+  #   eu-west-2:
+  #     AMI: "ami-0eb89db7593b5d434"
+  #   eu-west-3:
+  #     AMI: "ami-08c757228751c5335"
+  #   eu-north-1:
+  #     AMI: "ami-050981837962d44ac"
+
+Parameters:
   InstanceType:
     Description: EC2 instance type
     Type: String
@@ -26,64 +68,32 @@ Parameters:
     - t3a.large
     - t3a.xlarge
     - t3a.2xlarge
-  AMIId:
-    Type : 'AWS::SSM::Parameter::Value<String>'
-    Default: JenkinsAMIId
-
-Mappings: 
-  Linux2Map: 
-    us-east-1: "ami-0323c3dd2da7fb37d"
-    us-east-2: "ami-0f7919c33c90f5b58"
-    us-west-1: "ami-06fcc1f0bc2c8943f"
-    us-west-2: "ami-0d6621c01e8c2de2c"
-    eu-west-1: "ami-06ce3edf0cff21f07"
-    eu-west-2: "ami-01a6e31ac994bbc09"
-
-  UbuntuMap:  # V18.04 LTS
-    us-east-1: "ami-085925f297f89fce1"
-    us-east-2: "ami-07c1207a9d40bc3bd"
-    us-west-1: "ami-0f56279347d2fa43e"
-    us-west-2: "ami-003634241a8fcdec0"
-    eu-west-1: "ami-0701e7be9b2a77600"
-    eu-west-2: "ami-0eb89db7593b5d434"
 
 Resources:
 
   MyInstance:
     Type: AWS::EC2::Instance
-    # CreationPolicy:
-    #   ResourceSignal:
-    #     Timeout: PT10M
     Properties:
-      ImageId: !Ref AMIId
+      ImageId: !FindInMap [Linux2Map, !Ref "AWS::Region", AMI]
       SecurityGroupIds: 
         - !Ref MySecurityGroup
       InstanceType: !Ref 'InstanceType'
       KeyName: automation
-
       # Tag the volume - seems long winded but couldn't find an easy way!
+      # To make this work the ec2 instances needs a suitable temp role sts assume role etc
       # UserData:
       #   Fn::Base64:
       #     !Sub |
       #       #!/bin/bash -xe
       #       aws ec2 create-tags --resources $(aws ec2 describe-volumes --filters \
       #       Name=attachment.instance-id,Values=$(curl -s http://169.254.169.254/latest/meta-data/instance-id) \
-      #       --query 'Volumes[*].[VolumeId]' --region=eu-west-2 --out text | cut -f 1) --tags \
-      #       Key=Name,Value=${EnvironmentName}-Vol --region eu-west-2;
+      #       --query 'Volumes[*].[VolumeId]' --region=${AWS::Region} --out text | cut -f 1) --tags \
+      #       Key=Name,Value=${AWS::StackName}-Vol --region ${AWS::Region};
       #       /opt/aws/bin/cfn-signal --exit-code 0 --resource MyInstance --region ${AWS::Region} --stack ${AWS::StackName};
       Tags:
         -
           Key: Name
-          Value: !Sub ${EnvironmentName}-Instance
-        -
-          Key: Backup1357
-          Value: Test
-
-  MyCustomResource:
-    DependsOn: MyInstance
-    Type: AWS::CloudFormation::CustomResource
-    Properties: 
-      ServiceToken: arn:aws:lambda:eu-west-2:386747223641:function:test1-AMICreateFunction-1KN2II58FB3W8
+          Value: !Sub ${AWS::StackName}
 
   MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -94,56 +104,3 @@ Resources:
           FromPort: '22'
           ToPort: '22'
           CidrIp: 0.0.0.0/0
-
-  # AMICreateFunction:
-  #   Type: AWS::Lambda::Function
-  #   Properties: 
-  #     Code: 
-  #       S3Bucket: cfn-demo-ianp
-  #       S3Key: amicreate.zip
-  #     Description: "Lambda to create ami from instance on stack delete"
-  #     Handler: amicreate.lambda_handler
-  #     ReservedConcurrentExecutions: 1
-  #     Role: !GetAtt LambdaExecutionRole.Arn
-  #     Runtime: python3.8
-  #     Tags:
-  #       -
-  #         Key: Name
-  #         Value: !Sub ${EnvironmentName}-Lambda
-  #     Timeout: 15
-
-  # LambdaExecutionRole:
-  #   Type: AWS::IAM::Role
-  #   Properties:
-  #     AssumeRolePolicyDocument:
-  #       Version: '2012-10-17'
-  #       Statement:
-  #       - Effect: Allow
-  #         Principal:
-  #           Service:
-  #           - lambda.amazonaws.com
-  #         Action:
-  #         - sts:AssumeRole
-  #     Path: "/"
-  #     Policies:
-  #     - PolicyName: Demo-LambdaPolicy
-  #       PolicyDocument:
-  #         Version: '2012-10-17'
-  #         Statement:
-  #         - Effect: Allow
-  #           Action:
-  #           - logs:CreateLogGroup
-  #           - logs:CreateLogStream
-  #           - logs:PutLogEvents
-  #           Resource: arn:aws:logs:*:*:*
-  #         - Effect: Allow
-  #           Action:
-  #           - ec2:DescribeInstances
-  #           - ec2:CreateTags
-  #           - ec2:CreateImage
-  #           - ssm:PutParameter
-  #           Resource: "*"
-
-# Outputs:
-#   LambdaArn:
-#     Value: !GetAtt AMICreateFunction.Arn
