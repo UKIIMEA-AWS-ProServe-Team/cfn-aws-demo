@@ -3,29 +3,21 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: "DNS Record Set connection for demo"
 
 Parameters:
-    ALBAddr:
-        Description: The ALB DNS name
-        Type: String
-    ALBZoneId:
-        Description: The Hosted Zone Id of the ALB
-        Type: String
+  ALBAddr:
+    Description: The ALB DNS name
+    Type: String
+  ALBZoneId:
+    Description: The Hosted Zone Id of the ALB
+    Type: String
 
 Resources:
-    DNSRecordSet:
-        Type: AWS::Route53::RecordSet
-        Properties: 
-        AliasTarget: 
-            DNSName: !Ref ALBAddr
-            EvaluateTargetHealth: "false"
-            HostedZoneId: !Ref ALBZoneId
-        HostedZoneId: "ZR4URMES3MOE4"
-        Name: demo.cpsdxc.co.uk
-        Type: A        Type: AWS::Route53::RecordSet
-        Properties: 
-        AliasTarget: 
-            DNSName: !Ref ALBAddr
-            EvaluateTargetHealth: "false"
-            HostedZoneId: !Ref ALBZoneId
-        HostedZoneId: "ZR4URMES3MOE4"
-        Name: demo.cpsdxc.co.uk
-        Type: A
+  DNSRecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties: 
+      AliasTarget: 
+        DNSName: !Ref ALBAddr
+        EvaluateTargetHealth: "false"
+        HostedZoneId: !Ref ALBZoneId
+      HostedZoneId: "ZR4URMES3MOE4"
+      Name: demo.cpsdxc.co.uk
+      Type: A        Type: AWS::Route53::RecordSet
