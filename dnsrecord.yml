@@ -21,3 +21,8 @@ Resources:
       HostedZoneId: "ZR4URMES3MOE4"
       Name: demo.cpsdxc.co.uk
       Type: A
+
+Outputs:
+  SiteDNS:
+    Description: DNS name for application
+    Value: !Ref DNSRecordSet
