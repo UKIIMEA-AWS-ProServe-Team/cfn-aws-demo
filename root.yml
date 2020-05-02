@@ -157,3 +157,5 @@ Resources:
           Fn::GetAtt: [DemoALB, Outputs.ALBAddr]
         ALBZoneId:
           Fn::GetAtt: [DemoALB, Outputs.ALBZoneId]
+        EnvironmentName:
+          !Ref EnvironmentName

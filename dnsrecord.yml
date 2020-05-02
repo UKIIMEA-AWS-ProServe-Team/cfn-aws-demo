@@ -9,7 +9,9 @@ Parameters:
   ALBZoneId:
     Description: The Hosted Zone Id of the ALB
     Type: String
-
+  EnvironmentName:
+    Type: String
+    
 Resources:
   DNSRecordSet:
     Type: AWS::Route53::RecordSet
@@ -19,7 +21,7 @@ Resources:
         EvaluateTargetHealth: "false"
         HostedZoneId: !Ref ALBZoneId
       HostedZoneId: "ZR4URMES3MOE4"
-      Name: demo.cpsdxc.co.uk
+      Name: !Sub ${EnvironmentName}.demo.cpsdxc.co.uk
       Type: A
 
 Outputs:
