@@ -147,3 +147,13 @@ Resources:
       Parameters:
         LambdaArn:
           Fn::GetAtt: [LambdaFunc, Outputs.LambdaArn]
+
+  DNSRecord:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/dnsrecord.yml
+      Parameters:
+        ALBAddr:
+          Fn::GetAtt: [DemoALB, Outputs.ALBAddr]
+        ALBZoneId:
+          Fn::GetAtt: [DemoALB, Outputs.ALBZoneId]

@@ -78,7 +78,9 @@ Resources:
 
 Outputs:
   ALBAddr:
-    Description: Load balancer DNS address
+    Description: Load balancer DNS name
     Value: !GetAtt ALB.DNSName
   ALBTargetGroup:
     Value: !Ref ALBTargetGroup
+  ALBZoneId:
+    Value: !GetAtt ALB.CanonicalHostedZoneID
