@@ -54,7 +54,7 @@ Resources:
   #     PolicyType: SimpleScaling
   #     ScalingAdjustment: 2
 
-  ScaleUpPolicy:
+  ScalingPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
     Properties:
       AdjustmentType: ChangeInCapacity
