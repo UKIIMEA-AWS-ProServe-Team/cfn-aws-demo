@@ -61,10 +61,11 @@ Resources:
       AutoScalingGroupName: !Ref ASGGroup
       Cooldown: 150
       PolicyType: TargetTrackingScaling
-      ScalingAdjustment: 2
+      ScalingAdjustment: '2'
       TargetTrackingConfiguration:
-          PredefinedMetricSpecification: ASGAverageCPUUtilization
-          TargetValue: 20
+          PredefinedMetricSpecification: 
+            PredefinedMetricType: ASGAverageCPUUtilization
+          TargetValue: '20'
       
   # CPUAlarmHigh:
   #   Type: AWS::CloudWatch::Alarm
