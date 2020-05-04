@@ -71,7 +71,7 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Description: Role for EC2 to read/write SSM Parameters via CLI
-      MaxSessionDuration: 43200
+      MaxSessionDuration: 43200 # This is max duration. Need a fix. Means can only add nodes for 12 hrs
       Path: /
       Policies: 
         - PolicyName: !Sub ${EnvironmentName}-EC2-SSM-Params-Access

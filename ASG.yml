@@ -26,24 +26,24 @@ Resources:
       LaunchTemplate:
         LaunchTemplateId: !Ref WorkerNodeLaunchTemplate
         Version: '1'
-      # DesiredCapacity: !Ref NumberOfWorkerNodes
+      DesiredCapacity: !Ref NumberOfWorkerNodes
       MinSize: 2
       MaxSize: 10
       TargetGroupARNs:
         - !Ref ALBTargetGroup
-    # UpdatePolicy:
-    #   AutoScalingRollingUpdate:
-    #     MaxBatchSize: 2
-    #     MinInstancesInService: 2
-    #     MinSuccessfulInstancesPercent: 50
-    #     PauseTime: PT5M
-    #     SuspendProcesses:
-    #       - HealthCheck
-    #       - ReplaceUnhealthy
-    #       - AZRebalance
-    #       - AlarmNotification
-    #       - ScheduledActions
-    #     WaitOnResourceSignals: true
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MaxBatchSize: 2
+        MinInstancesInService: 2
+        MinSuccessfulInstancesPercent: 50
+        PauseTime: PT5M
+        SuspendProcesses:
+          - HealthCheck
+          - ReplaceUnhealthy
+          - AZRebalance
+          - AlarmNotification
+          - ScheduledActions
+        WaitOnResourceSignals: true
 
   # ScaleUpPolicy:
   #   Type: AWS::AutoScaling::ScalingPolicy
@@ -57,11 +57,9 @@ Resources:
   ScalingPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
     Properties:
-      # AdjustmentType: ChangeInCapacity
       AutoScalingGroupName: !Ref ASGGroup
       Cooldown: 150
       PolicyType: TargetTrackingScaling
-      ScalingAdjustment: '2'
       TargetTrackingConfiguration:
           PredefinedMetricSpecification: 
             PredefinedMetricType: ASGAverageCPUUtilization
