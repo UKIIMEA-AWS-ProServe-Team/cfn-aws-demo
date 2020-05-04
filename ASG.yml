@@ -63,8 +63,7 @@ Resources:
       PolicyType: TargetTrackingScaling
       ScalingAdjustment: 2
       TargetTrackingConfiguration:
-          PredefinedMetricSpecification: 
-            ASGAverageCPUUtilization
+          PredefinedMetricSpecification: ASGAverageCPUUtilization
           TargetValue: 20
       
   # CPUAlarmHigh:
