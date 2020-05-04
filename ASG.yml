@@ -45,15 +45,6 @@ Resources:
           - ScheduledActions
         WaitOnResourceSignals: true
 
-  # ScaleUpPolicy:
-  #   Type: AWS::AutoScaling::ScalingPolicy
-  #   Properties:
-  #     AdjustmentType: ChangeInCapacity
-  #     AutoScalingGroupName: !Ref ASGGroup
-  #     Cooldown: 300
-  #     PolicyType: SimpleScaling
-  #     ScalingAdjustment: 2
-
   ScalingPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
     Properties:
@@ -64,20 +55,3 @@ Resources:
           PredefinedMetricSpecification: 
             PredefinedMetricType: ASGAverageCPUUtilization
           TargetValue: '20'
-      
-  # CPUAlarmHigh:
-  #   Type: AWS::CloudWatch::Alarm
-  #   Properties:
-  #     EvaluationPeriods: '1'
-  #     Statistic: Average
-  #     Threshold: '20'
-  #     AlarmDescription: Alarm if CPU too high or metric disappears indicating instance is down
-  #     Period: '60'  # Must be >= 60 for EC2
-  #     AlarmActions:
-  #     - Ref: ScaleUpPolicy
-  #     Namespace: AWS/EC2
-  #     Dimensions:
-  #     - Name: AutoScalingGroupName
-  #       Value: !Ref ASGGroup
-  #     ComparisonOperator: GreaterThanThreshold
-  #     MetricName: CPUUtilization
