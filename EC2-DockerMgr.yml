@@ -71,7 +71,7 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Description: Role for EC2 to read/write SSM Parameters via CLI
-      MaxSessionDuration: 43200 # This is max duration. Need a fix. Means can only add nodes for 12 hrs
+      MaxSessionDuration: 3600  # NOTE: This means cannot write key after 1 hour
       Path: /
       Policies: 
         - PolicyName: !Sub ${EnvironmentName}-EC2-SSM-Params-Access
@@ -92,13 +92,13 @@ Resources:
           Value: !Sub ${EnvironmentName}-TempSSMRole
   
   MyProfile:
-    DependsOn: MgrRole
+    # DependsOn: MgrRole
     Type: AWS::IAM::InstanceProfile
     Properties: 
       InstanceProfileName: !Sub ${EnvironmentName}-Access-SSM-Params-Profile
       Path: /
       Roles: 
-        - !Sub ${EnvironmentName}-EC2-SSM-Params-Role
+        - !Ref MgrRole      #!Sub ${EnvironmentName}-EC2-SSM-Params-Role
 
 Outputs:
   DockerMgrPubIp:

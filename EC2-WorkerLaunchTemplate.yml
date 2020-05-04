@@ -67,7 +67,7 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Description: Role for EC2 to read SSM Parameters via CLI
-      MaxSessionDuration: 3600 # Role active for 1 hour (Implies no scaling after an hour - spot instances!)
+      MaxSessionDuration: 3600 # Role active for 1 hours (Does this imply can't use after 1 hour?)
       Path: /
       Policies: 
         - PolicyName: !Sub ${EnvironmentName}-EC2-SSM-Params-WorkerAccess
