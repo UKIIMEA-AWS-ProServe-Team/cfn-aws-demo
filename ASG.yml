@@ -57,7 +57,7 @@ Resources:
   ScalingPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
     Properties:
-      AdjustmentType: ChangeInCapacity
+      # AdjustmentType: ChangeInCapacity
       AutoScalingGroupName: !Ref ASGGroup
       Cooldown: 150
       PolicyType: TargetTrackingScaling
