@@ -1,5 +1,6 @@
 # cfn-work
-## For demo purposes only - not for production - poor security.
+
+## For demo purposes only - not for production - poor security
 
 * Sets up VPC with 2 public subnets / AZ
 * Sets up Docker Swarm
@@ -14,6 +15,12 @@
 * ALB is associated with the DNS record
 * When stack deletes saves state of Jenkins via AMI
 
+Relies on a couple of pre-existing resources:
+
+* EIP for Jenkins so it can receive webhook calls from Github
+* The cpsdxc.co.uk domain in Route53 top which is used by the app; ${EnvironmentName}.cpsdx.co.uk
+
 Takes approx. 10 mins to create in CFN but may take another 5-10 mins to stabilise
 and app to be available.The App takes 5-8 mins to build and deploy after a push.
-### So the first run may take 25 mins.
+
+### So the first run may take 25 mins
