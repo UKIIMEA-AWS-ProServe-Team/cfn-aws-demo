@@ -10,7 +10,7 @@ Parameters:
     Default: DEMO
 
   NumberOfWorkerNodes:
-    Description: Number of worker nodes requested
+    Description: Minimum number of worker nodes desired
     Type: Number
     Default: 2
     MaxValue: 10

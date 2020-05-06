@@ -49,9 +49,9 @@ Resources:
             usermod -aG docker ec2-user;
             echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDIjrLOiWlu4joGudg97UgQy9rH/jPfLQBb4etkLtmXzJVFUDlrPFIPVe7KcCKuq8mRQIpj9WfYHuqYwjVMLDwBTY4MEdLYcIsu9gk0prGpQ9dGW7jQlzeqvncO61NCDiP7JUpGg8PLTbSjcMsTsZAsYLeLWe+2Q/z6zXgnVIMTdNCnxE6Bp2/llz90vcY/4RhN7lHfoi56wUnD3E1MOe7CdQOU1DIzCc8KjasY622OYhc4ZLzO7KsctePQgaafel1BewXKaUgs8/N0xyXtaNOja6o3nxvz3hPXcZj576ob9P21OrhCQMy8fjcZajVckC/ZA9vQQ76cxYM8lJjbJorv ubuntu@ip-172-31-21-255" \
             >> /home/ec2-user/.ssh/authorized_keys;
+            /opt/aws/bin/cfn-signal --exit-code 0 --resource DockerMgr --region ${AWS::Region} --stack ${AWS::StackName};
             docker pull ianp5uk/train-schedule:latest;
             docker service create --name train-schedule --replicas 3 -p 80:3000 ianp5uk/train-schedule:latest;
-            /opt/aws/bin/cfn-signal --exit-code 0 --resource DockerMgr --region ${AWS::Region} --stack ${AWS::StackName};
       Tags:
         -
           Key: Name
@@ -71,7 +71,7 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Description: Role for EC2 to read/write SSM Parameters via CLI
-      MaxSessionDuration: 3600 # Role active for 1 hour (Implies no scaling after an hour - spot instances!)
+      MaxSessionDuration: 3600  # NOTE: This means cannot write key after 1 hour
       Path: /
       Policies: 
         - PolicyName: !Sub ${EnvironmentName}-EC2-SSM-Params-Access
@@ -92,13 +92,13 @@ Resources:
           Value: !Sub ${EnvironmentName}-TempSSMRole
   
   MyProfile:
-    DependsOn: MgrRole
+    # DependsOn: MgrRole
     Type: AWS::IAM::InstanceProfile
     Properties: 
       InstanceProfileName: !Sub ${EnvironmentName}-Access-SSM-Params-Profile
       Path: /
       Roles: 
-        - !Sub ${EnvironmentName}-EC2-SSM-Params-Role
+        - !Ref MgrRole      #!Sub ${EnvironmentName}-EC2-SSM-Params-Role
 
 Outputs:
   DockerMgrPubIp:
