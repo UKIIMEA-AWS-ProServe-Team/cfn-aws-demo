@@ -23,4 +23,4 @@ Relies on a couple of pre-existing resources:
 Takes approx. 10 mins to create in CFN but may take another 5-10 mins to stabilise
 and app to be available.The App takes 5-8 mins to build and deploy after a push.
 
-### So the first run may take 25 mins
+### So the first run may take 25 mins. At quiet periods it has run <10 mins
