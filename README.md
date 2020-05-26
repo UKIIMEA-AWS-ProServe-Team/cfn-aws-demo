@@ -38,4 +38,5 @@ to remote repo on Github.
 4. Understand how Terraform projects should be organised for best practice!
 5. Add notification of scaling events
 6. Add load testing to force scaling up
+7. Apply security best practices
 
