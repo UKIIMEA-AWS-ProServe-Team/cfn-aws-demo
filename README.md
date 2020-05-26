@@ -29,3 +29,13 @@ and app to be available.The App takes 5-8 mins to build and auto deploys after a
 to remote repo on Github.
 
 ### So a run might take 25 mins. At quiet periods runs <10 mins
+
+## Improvements Needed
+
+1. Error handling for Lambda function
+2. Scale the Docker service with ec2
+3. Make region agnostic
+4. Understand how Terraform projects should be organised for best practice!
+5. Add notification of scaling events
+6. Add load testing to force scaling up
+
