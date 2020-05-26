@@ -18,7 +18,7 @@
 
 * Will only run in eu-west-2 (London region)
 * Relies on an existing domain in Route53 that it adds a record to
-* Jenkins associates with a pre-existing EIP for ease of access (i.e. doesn't keep changing address)
+* Jenkins associates with a persistent EIP for ease of access (i.e. doesn't keep changing address)
 * Jenkins uses a pre-created AMI (otherwise takes ages to build)
 * Above pre-existing AMI name is held in a persistent parameter store
 
