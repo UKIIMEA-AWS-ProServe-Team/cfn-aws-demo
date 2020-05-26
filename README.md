@@ -10,17 +10,20 @@
 * Jenkins associates with a pre-existing EIP for ease of access
 * Connects to simple test app on Github
 * Github update triggers rebuild and deploy
-* Will only run in eu-west-2 (London region)
 * Creates DNS record in an existing zone - to allow url to be saved
 * ALB is associated with the DNS record
 * When stack deletes saves state of Jenkins via AMI
 
-Relies on a couple of pre-existing resources:
+## Key dependencies not obvious in scripts
 
-* EIP for Jenkins so it can receive webhook calls from Github
-* The cpsdxc.co.uk domain in Route53 top which is used by the app; ${EnvironmentName}.cpsdx.co.uk
+* Will only run in eu-west-2 (London region)
+* Relies on an existing domain in Route53 that it adds a record to
+* Jenkins associates with a pre-existing EIP for ease of access (i.e. doesn't keep changing address)
+* Jenkins uses a pre-created AMI (otherwise takes ages to build)
+* Above pre-existing AMI name is held in a persistent parameter store
 
-Takes approx. 10 mins to create in CFN but may take another 5-10 mins to stabilise
-and app to be available.The App takes 5-8 mins to build and deploy after a push.
+Takes approx. 10 mins to create but may take few mins to stabilise
+and app to be available.The App takes 5-8 mins to build and auto deploys after a change
+to remote repo on Github.
 
-### So the first run may take 25 mins. At quiet periods it has run <10 mins
+### So a run might take 25 mins. At quiet periods runs <10 mins
