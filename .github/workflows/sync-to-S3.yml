@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - uses: UKIIMEA-AWS-ProServe-Team/s3-sync-action@master
+    - uses: ./.github/actions/s3-sync-action
       with:
         args: --follow-symlinks --delete --exclude '.git/*'
       env:
