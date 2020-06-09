@@ -1,5 +1,5 @@
 
-# Demo: Not for production use, not production quality! #
+# Demo: Not for production use, not production quality!
 
 AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
