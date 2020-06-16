@@ -6,6 +6,7 @@ import datetime
 helper = CfnResource()
 ec = boto3.client('ec2')
 store = boto3.client('ssm')
+cloudformation = boto3.client('cloudformation')
 
 @helper.create
 @helper.update
@@ -14,32 +15,58 @@ def no_op(_, __):
 
 @helper.delete
 def delete(event, context):
+    # Event debug
+    print ("Event detail: ", json.dumps(event))
 
-    print ("event: ", json.dumps(event))
+    # Catch exceptions in case there is a lookup error
+    try:
+        # Get stack id (is nested stack id)
+        stackId = event['StackId']
+        print ("StackId: ", stackId)
 
-    reservations = ec.describe_instances( 
-        Filters=[
-            {'Name': 'tag-key', 'Values': ['Backup1357']}
-        ]
-    ).get(
-        'Reservations', []
-    )
+        # Get current stack 
+        stackList = cloudformation.describe_stacks(StackName=stackId)
 
-    instances = sum(
-        [
-            [i for i in r['Instances']]
-            for r in reservations
-        ], [])
+        # Validate expected resource is returned
+        if len(stackList['Stacks']) != 1:
+            print ("ERROR: Current stack detail not found")
+            print ("ERROR: Returned Stacks: ", stackList['Stacks'])
+            raise Exception('Invalid current stack returned')
+        
+        # Extract root stack id
+        rootStackId = stackList['Stacks'][0]['RootId']
+        print ('RootStackId: ', rootStackId)
 
-    count = 0
-    for instance in instances:
-        if instance['State']['Name'] != 'running':      # don't want to backup non-running instances left after rapid restart of stack
-            continue
-        count += 1                                      # using counts is clunky
-        if count > 1:
-            print ("Oops more than 1 instance - something's wrong - aborting!")
-            return
-        print ("Found instance %s" % (instance['InstanceId']))
+        # Get root stack resources
+        rootStackResources = cloudformation.describe_stack_resources(
+            StackName=rootStackId, 
+            LogicalResourceId='JenkinsInstance')
+
+        # Validate expected resource is returned
+        if len(rootStackResources['StackResources']) != 1:
+            print ("ERROR: Root stack jenkins resource not found")
+            print ("ERROR Returned Stacks: ", rootStackResources['StackResources'])
+            raise Exception('Invalid root stack resources returned')
+        
+        # Extract jenkins stack id
+        jenkinsStackId = rootStackResources['StackResources'][0]['PhysicalResourceId']
+        print ('JenkinsStackId: ', jenkinsStackId)
+
+        # Get jenkins stack resources
+        jenkinsStackResources = cloudformation.describe_stack_resources(
+            StackName=jenkinsStackId, 
+            LogicalResourceId='JenkinsInstance')
+
+        # Validate expected resource is returned
+        if len(rootStackResources['StackResources']) != 1:
+            print ("ERROR: Jenkins Instance id not found")
+            print ("ERROR Returned Stacks: ", rootStackResources['StackResources'])
+            raise Exception('Invalid jenkins stack resources returned')
+
+        # Extract jenkins instanceId from stack resoruces
+        jenkinsInstanceId = jenkinsStackResources['StackResources'][0]['PhysicalResourceId']
+        print ('JenkinsInstanceId: ', jenkinsInstanceId)
+
         # Create an AMI from the instance
         JenkinsAMI = ec.create_image(
             BlockDeviceMappings=[
@@ -49,7 +76,7 @@ def delete(event, context):
                 },
             ],
             Description='Jenkins AMI from instance',
-            InstanceId=instance['InstanceId'],
+            InstanceId=jenkinsInstanceId,
             # Need unique name here hence addition of datetime
             Name='JenkinsAMI ' + str(datetime.datetime.utcnow()).replace(':' , '-') 
         )
@@ -67,7 +94,7 @@ def delete(event, context):
 
         print ("AMI %s created from instance %s" % (
             JenkinsAMI['ImageId'],
-            instance['InstanceId']
+            jenkinsInstanceId
         ))
 
         # Save the AMI id to Parameter store for retrieval by server boot
@@ -78,6 +105,8 @@ def delete(event, context):
             Overwrite=True,
             Tier='Standard',
         )
+    except Exception as e:
+        print("EXCEPTION: ", str(e))
 
 
 def lambda_handler(event, context):

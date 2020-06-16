@@ -48,10 +48,11 @@ Resources:
             Resource: arn:aws:logs:*:*:*
           - Effect: Allow
             Action:
-            - ec2:DescribeInstances
             - ec2:CreateTags
             - ec2:CreateImage
             - ssm:PutParameter
+            - cloudformation:DescribeStackResources
+            - cloudformation:DescribeStacks
             Resource: "*"
 
 Outputs:
