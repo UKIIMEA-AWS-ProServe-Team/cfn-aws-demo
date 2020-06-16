@@ -45,11 +45,8 @@ def delete(event, context):
             BlockDeviceMappings=[
                 {
                     'DeviceName': '/dev/xvda',
-                    'Ebs': {
-                        'DeleteOnTermination': True,
-                        'VolumeSize': 50                    # Need to get this value from somewhere not hard code
-                        }
-                    },
+                    'Ebs': { 'DeleteOnTermination': True }
+                },
             ],
             Description='Jenkins AMI from instance',
             InstanceId=instance['InstanceId'],
