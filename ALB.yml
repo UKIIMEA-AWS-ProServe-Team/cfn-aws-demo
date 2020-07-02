@@ -43,8 +43,7 @@ Resources:
       UnhealthyThresholdCount: 4
       VpcId: !Ref VPCId
       Tags:
-        -
-          Key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}ALBTgtGroup
 
   ALBListener: # This is the ALB Listener used to access the Worker Node Web
