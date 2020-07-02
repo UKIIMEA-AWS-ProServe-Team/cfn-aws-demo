@@ -131,6 +131,9 @@ Resources:
           Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
         VPCId:
           Fn::GetAtt: [VPCStack, Outputs.VPC]
+        InstanceType: t3a.small
+        KeyName: automation
+        JenkinsIPAllocationId: eipalloc-08c04d22327eb87e9
 
   LambdaFunc:
     Type: AWS::CloudFormation::Stack

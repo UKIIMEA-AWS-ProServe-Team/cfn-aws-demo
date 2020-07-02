@@ -11,6 +11,13 @@ Parameters:
   AMIId:
     Type : 'AWS::SSM::Parameter::Value<String>'
     Default: JenkinsAMIId
+  InstanceType:
+    Type : String
+    Default: t3a.small
+  KeyName:
+    Type: String
+  JenkinsIPAllocationId:
+    Type: String
 
 Resources:
 
@@ -21,17 +28,15 @@ Resources:
         Timeout: PT10M
     Properties:
       ImageId: !Ref AMIId
-      InstanceType: t3a.small
-      KeyName: automation
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
       NetworkInterfaces:
         - NetworkInterfaceId: !Ref JenkinsENI
           DeviceIndex: 0
       Tags:
-        -
-          Key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}-Jenkins
-        -
-          Key: Backup1357
+        - Key: Backup1357
           Value: !Sub ${EnvironmentName}-AMI
       UserData:
         Fn::Base64:
@@ -58,8 +63,7 @@ Resources:
           ToPort: '22'
           CidrIp: 0.0.0.0/0
       Tags:
-        -
-          Key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}-jenkins-sg
 
   JenkinsENI:
@@ -69,15 +73,14 @@ Resources:
         - !GetAtt JenkinsSecurityGroup.GroupId
       SubnetId: !Ref PublicSubnet2
       Tags:
-        -
-          Key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}-JenkinsENI
 
   # This is pre-existing - if EIP is deleted will need AllocationId updating      
   JenkinsEIPAssoc:        
     Type: AWS::EC2::EIPAssociation
     Properties: 
-      AllocationId: eipalloc-08c04d22327eb87e9
+      AllocationId: !Ref JenkinsIPAllocationId
       InstanceId: !Ref JenkinsInstance
 
 Outputs:
