@@ -13,6 +13,8 @@ Parameters:
     Type: String
   PublicSubnet1:
     Type: String
+  PrivateIP:
+    Type: String
 
 Resources:
   MgrENI:
@@ -23,11 +25,10 @@ Resources:
         - !Ref DockerSecurityGroup
         - !Ref SSHIngressSecurityGroup
         - !Ref WebIngressSecurityGroup
-      PrivateIpAddress: "10.192.10.20"
+      PrivateIpAddress: !Ref PrivateIP
       SubnetId: !Ref PublicSubnet1
       Tags:
-        -
-          Key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}-MasterNodeENI
 
 Outputs:
