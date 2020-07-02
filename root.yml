@@ -77,6 +77,11 @@ Parameters:
     Type: String
     Default: eipalloc-08c04d22327eb87e9
 
+  LambdaFunctionName:
+    Description: Lambda function, zip, etc name
+    Type: String
+    Default: amicreate
+  
   R53HostedZoneId:
     Description: R53 Hosted Zone Id
     Type: String
@@ -183,10 +188,9 @@ Resources:
     Properties:
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/lambda.yml
       Parameters:
-        EnvironmentName:
-          !Ref EnvironmentName
-        S3BucketName: cfn-demo-ianp
-        LambdaZipName: amicreate
+        EnvironmentName: !Ref EnvironmentName
+        S3BucketName: !Ref SourceS3BucketName
+        LambdaZipName: !Ref LambdaFunctionName
 
   LambdaExec:
     DependsOn: JenkinsInstance
@@ -194,8 +198,7 @@ Resources:
     Properties:
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/lambdaexec.yml
       Parameters:
-        LambdaArn:
-          Fn::GetAtt: [LambdaFunc, Outputs.LambdaArn]
+        LambdaArn: !GetAtt LambdaFunc.Outputs.LambdaArn
 
   DNSRecord:
     Type: AWS::CloudFormation::Stack
