@@ -12,6 +12,13 @@ Parameters:
     Type: String
   PublicSubnet1:
     Type: String
+  InstanceType:
+    Type : String
+    Default: t3a.nano
+  KeyName:
+    Type: String
+  DockerAMI:
+    Type: String
 
 Resources:
   WorkerNodeLaunchTemplate:
@@ -27,21 +34,17 @@ Resources:
           CpuCredits: standard
         IamInstanceProfile:
           Name: !Ref WorkerProfile
-        ImageId: ami-0389b2a3c4948b1a0
-        InstanceType: t3a.nano
-        KeyName: automation
+        ImageId: !Ref DockerAMI
+        InstanceType: !Ref InstanceType
+        KeyName: !Ref KeyName
         TagSpecifications:
-          -
-            ResourceType: instance
+          - ResourceType: instance
             Tags:
-              - 
-                Key: Name
+              - Key: Name
                 Value: !Sub ${EnvironmentName}-Worker
-          -
-            ResourceType: volume
+          - ResourceType: volume
             Tags:
-              -
-                Key: Name
+              - Key: Name
                 Value: !Sub ${EnvironmentName}
         UserData:
           Fn::Base64:
@@ -80,8 +83,7 @@ Resources:
                   - ssm:GetParameter
                 Resource: arn:aws:ssm:*:*:parameter/*
       Tags: 
-        -
-          Key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}-Worker
   
   WorkerProfile:

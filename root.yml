@@ -44,6 +44,29 @@ Parameters:
       - t3a.micro
       - t3a.small
 
+  DockerManagerInstanceType:
+    Description: Docker manager instance type
+    Type: String
+    Default: t3a.small
+    AllowedValues: 
+      - t3a.nano
+      - t3a.micro
+      - t3a.small
+
+  DockerWorkerInstanceType:
+    Description: Docker worker instance type
+    Type: String
+    Default: t3a.small
+    AllowedValues: 
+      - t3a.nano
+      - t3a.micro
+      - t3a.small
+  
+  DockerAMIId:
+    Description: Docker AMI Id
+    Type: String
+    Default: ami-0389b2a3c4948b1a0
+
   InstanceKeypairName:
     Description: Keypair for instances
     Type: String
@@ -96,14 +119,13 @@ Resources:
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/EC2-WorkerLaunchTemplate.yml
       Parameters:
         EnvironmentName: !Ref EnvironmentName
-        DockerSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.DockerSecurityGroup]
-        SSHIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
-        WebIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.WebIngressSecurityGroup]
-        PublicSubnet1:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
+        DockerSecurityGroup: !GetAtt VPCStack.Outputs.DockerSecurityGroup
+        SSHIngressSecurityGroup: !GetAtt VPCStack.Outputs.SSHIngressSecurityGroup
+        WebIngressSecurityGroup: !GetAtt VPCStack.Outputs.WebIngressSecurityGroup
+        PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
+        InstanceType: !Ref DockerWorkerInstanceType
+        KeyName: !Ref InstanceKeypairName
+        DockerAMI: !Ref DockerAMIId
 
   ASGGroup:
     DependsOn: 
@@ -116,14 +138,10 @@ Resources:
       Parameters:
         EnvironmentName: !Ref EnvironmentName
         NumberOfWorkerNodes: !Ref NumberOfWorkerNodes
-        WorkerNodeLaunchTemplate: 
-          Fn::GetAtt: [WorkerNodeLaunchTemplate, Outputs.WorkerNodeLaunchTemplate]
-        PublicSubnet1:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
-        PublicSubnet2:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]
-        ALBTargetGroup:
-          Fn::GetAtt: [DemoALB, Outputs.ALBTargetGroup]
+        WorkerNodeLaunchTemplate: !GetAtt WorkerNodeLaunchTemplate.Outputs.WorkerNodeLaunchTemplate
+        PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
+        PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
+        ALBTargetGroup: !GetAtt DemoALB.Outputs.ALBTargetGroup
 
   DemoALB:
     Type: AWS::CloudFormation::Stack
