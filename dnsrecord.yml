@@ -10,6 +10,13 @@ Parameters:
     Description: The Hosted Zone Id of the ALB
     Type: String
   EnvironmentName:
+    Description: Environment name to be build
+    Type: String
+  R53HostedZoneId:
+    Description: The Hosted Zone Id in R53
+    Type: String
+  R53Domain:
+    Description: The Hosted Zone Domain
     Type: String
 
 Resources:
@@ -20,8 +27,8 @@ Resources:
         DNSName: !Ref ALBAddr
         EvaluateTargetHealth: "false"
         HostedZoneId: !Ref ALBZoneId
-      HostedZoneId: "ZR4URMES3MOE4"
-      Name: !Sub ${EnvironmentName}.cpsdxc.co.uk
+      HostedZoneId: !Ref R53HostedZoneId
+      Name: !Sub ${EnvironmentName}.${R53Domain}
       Type: A
 
 Outputs:

@@ -159,3 +159,6 @@ Resources:
           Fn::GetAtt: [DemoALB, Outputs.ALBZoneId]
         EnvironmentName:
           !Ref EnvironmentName
+        R53HostedZoneId: "ZR4URMES3MOE4"
+        R53Domain: "cpsdxc.co.uk"
+
