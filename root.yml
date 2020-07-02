@@ -30,6 +30,11 @@ Parameters:
     Type: String
     Default: 10.192.11.0/24
 
+  ManagerPrivateIP:
+    Description: "** DO NOT CHANGE - USED AS CONSTANT **"
+    Type: String
+    Default: 10.192.10.20
+
 Resources:
 
   VPCStack:
@@ -48,15 +53,11 @@ Resources:
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/MgrENI.yml
       Parameters:
         EnvironmentName: !Ref EnvironmentName
-        DockerSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.DockerSecurityGroup]
-        SSHIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
-        WebIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.WebIngressSecurityGroup]
-        PublicSubnet1:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
-        PrivateIP: "10.192.10.20"
+        DockerSecurityGroup: !GetAtt VPCStack.Outputs.DockerSecurityGroup
+        SSHIngressSecurityGroup: !GetAtt VPCStack.Outputs.SSHIngressSecurityGroup
+        WebIngressSecurityGroup: !GetAtt VPCStack.Outputs.WebIngressSecurityGroup
+        PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
+        PrivateIP: !Ref ManagerPrivateIP
 
   DockerMgr:
     Type: AWS::CloudFormation::Stack
@@ -64,8 +65,11 @@ Resources:
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/EC2-DockerMgr.yml
       Parameters:
         EnvironmentName: !Ref EnvironmentName
-        MgrENI:
-          Fn::GetAtt: [MgrENI, Outputs.MgrENI]
+        MgrENI: !GetAtt MgrENI.Outputs.MgrENI
+        InstanceType: !Ref DockerManagerInstanceType
+        KeyName: !Ref InstanceKeypairName
+        DockerAMI: !Ref DockerAMIId
+        MgrPrivateIP: !Ref ManagerPrivateIP
 
   WorkerNodeLaunchTemplate:
     Type: AWS::CloudFormation::Stack
