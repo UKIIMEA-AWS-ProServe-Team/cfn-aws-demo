@@ -77,6 +77,16 @@ Parameters:
     Type: String
     Default: eipalloc-08c04d22327eb87e9
 
+  R53HostedZoneId:
+    Description: R53 Hosted Zone Id
+    Type: String
+    Default: ZR4URMES3MOE4
+  
+  R53HostedZoneDomain:
+    Description: R53 Hosted Zone Domain
+    Type: String
+    Default: cpsdxc.co.uk
+
 Resources:
 
   VPCStack:
@@ -192,12 +202,9 @@ Resources:
     Properties:
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/dnsrecord.yml
       Parameters:
-        ALBAddr:
-          Fn::GetAtt: [DemoALB, Outputs.ALBAddr]
-        ALBZoneId:
-          Fn::GetAtt: [DemoALB, Outputs.ALBZoneId]
-        EnvironmentName:
-          !Ref EnvironmentName
-        R53HostedZoneId: "ZR4URMES3MOE4"
-        R53Domain: "cpsdxc.co.uk"
+        ALBAddr: !GetAtt DemoALB.Outputs.ALBAddr
+        ALBZoneId: !GetAtt DemoALB.Outputs.ALBZoneId
+        EnvironmentName: !Ref EnvironmentName
+        R53HostedZoneId: !Ref R53HostedZoneId
+        R53Domain: !Ref R53HostedZoneDomain
 
