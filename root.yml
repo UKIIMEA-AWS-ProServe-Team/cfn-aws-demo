@@ -139,6 +139,8 @@ Resources:
       Parameters:
         EnvironmentName:
           !Ref EnvironmentName
+        S3BucketName: cfn-demo-ianp
+        LambdaZipName: amicreate
 
   LambdaExec:
     DependsOn: JenkinsInstance

@@ -3,22 +3,25 @@ AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   EnvironmentName:
     Type: String
+  S3BucketName:
+    Type: String
+  LambdaZipName:
+    Type: String
 
 Resources:
   AMICreateFunction:
     Type: AWS::Lambda::Function
     Properties: 
       Code: 
-        S3Bucket: cfn-demo-ianp
-        S3Key: amicreate.zip
+        S3Bucket: !Ref S3BucketName
+        S3Key: !Sub ${LambdaZipName}.zip
       Description: "Lambda to create ami from instance on stack delete"
-      Handler: amicreate.lambda_handler
+      Handler: !Sub ${LambdaZipName}.lambda_handler
       ReservedConcurrentExecutions: 1
       Role: !GetAtt LambdaExecutionRole.Arn
       Runtime: python3.8
       Tags:
-        -
-          Key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}-Lambda
       Timeout: 60
 
