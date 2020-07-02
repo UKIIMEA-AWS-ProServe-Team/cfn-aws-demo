@@ -35,6 +35,25 @@ Parameters:
     Type: String
     Default: 10.192.10.20
 
+  JenkinsInstanceType:
+    Description: Jenkins instance type
+    Type: String
+    Default: t3a.small
+    AllowedValues: 
+      - t3a.nano
+      - t3a.micro
+      - t3a.small
+
+  InstanceKeypairName:
+    Description: Keypair for instances
+    Type: String
+    Default: automation
+
+  JenkinsEIPAllocation:
+    Description: "Warning do not change - as been pre-created"
+    Type: String
+    Default: eipalloc-08c04d22327eb87e9
+
 Resources:
 
   VPCStack:
@@ -127,17 +146,13 @@ Resources:
     Properties: 
       TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/jenkins.yml
       Parameters:
-        EnvironmentName:
-          !Ref EnvironmentName
-        PublicSubnet2:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]
-        SSHIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
-        VPCId:
-          Fn::GetAtt: [VPCStack, Outputs.VPC]
-        InstanceType: t3a.small
-        KeyName: automation
-        JenkinsIPAllocationId: eipalloc-08c04d22327eb87e9
+        EnvironmentName: !Ref EnvironmentName
+        PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
+        SSHIngressSecurityGroup: !GetAtt VPCStack.Outputs.SSHIngressSecurityGroup
+        VPCId: !GetAtt VPCStack.Outputs.VPC
+        InstanceType: !Ref JenkinsInstanceType
+        KeyName: !Ref InstanceKeypairName
+        JenkinsIPAllocationId: !Ref JenkinsEIPAllocation
 
   LambdaFunc:
     Type: AWS::CloudFormation::Stack
