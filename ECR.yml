@@ -1,0 +1,21 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Elastic Container Registry (ECR) definition to store images
+
+Resources:
+  ECRRepo:
+    Type: AWS::ECR::Repository
+
+Outputs:
+  ECRARN:
+    Description: ARN for repo
+    Value: !GetAtt ECRRepo.Arn
+    Export:
+      Name: !Sub 'ECRArn'
+  ECRName:
+    Description: Name for repo
+    Value: !Ref ECRRepo
+    Export:
+      Name: !Sub 'ECRName'
+  

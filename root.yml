@@ -100,6 +100,11 @@ Resources:
         PublicSubnet1CIDR: !FindInMap [CIDRBlocks, Public, Subnet1]
         PublicSubnet2CIDR: !FindInMap [CIDRBlocks, Public, Subnet2]
 
+  ECRStack:
+    Type: AWS::CloudFormation::Stack
+    Properties :
+      TemplateURL: !Sub ${SourceS3BucketURI}${SourceS3BucketName}/ECR.yml
+
   MgrENI:
     Type: AWS::CloudFormation::Stack
     Properties: 
