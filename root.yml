@@ -15,26 +15,6 @@ Parameters:
     Default: 2
     MaxValue: 10
 
-  VpcCIDR:
-    Description: "** DO NOT CHANGE - USED AS CONSTANT **"
-    Type: String
-    Default: 10.192.0.0/16
-
-  PublicSubnet1CIDR:
-    Description: "** DO NOT CHANGE - USED AS CONSTANT **"
-    Type: String
-    Default: 10.192.10.0/24
-
-  PublicSubnet2CIDR:
-    Description: "** DO NOT CHANGE - USED AS CONSTANT **"
-    Type: String
-    Default: 10.192.11.0/24
-
-  ManagerPrivateIP:
-    Description: "** DO NOT CHANGE - USED AS CONSTANT **"
-    Type: String
-    Default: 10.192.10.20
-
   JenkinsInstanceType:
     Description: Jenkins instance type
     Type: String
@@ -61,11 +41,6 @@ Parameters:
       - t3a.nano
       - t3a.micro
       - t3a.small
-  
-  DockerAMIId:
-    Description: Docker AMI Id
-    Type: String
-    Default: ami-0389b2a3c4948b1a0
 
   InstanceKeypairName:
     Description: Keypair for instances
@@ -91,16 +66,27 @@ Parameters:
     Description: Lambda function, zip, etc name
     Type: String
     Default: amicreate
-  
-  R53HostedZoneId:
-    Description: R53 Hosted Zone Id
-    Type: String
-    Default: ZR4URMES3MOE4
-  
-  R53HostedZoneDomain:
-    Description: R53 Hosted Zone Domain
-    Type: String
-    Default: cpsdxc.co.uk
+
+Mappings:
+  LinuxBaseAMI:
+    eu-west-1: 
+      AmazonLinux2: ami-0ea3405d2d2522162
+    eu-west-2: 
+      AmazonLinux2: ami-032598fcc7e9d1c7a
+  Route53:
+    HostedZone:
+      Domain: cpsdxc.co.uk
+      ID: ZR4URMES3MOE4
+  CIDRBlocks:
+    VPC:
+      Range: 10.192.0.0/16
+    Public:
+      Subnet1: 10.192.10.0/24
+      Subnet2: 10.192.11.0/24
+  IPAddresses:
+    Manager:
+      PrivateIP: 10.192.10.20
+    
 
 Resources:
 
@@ -110,9 +96,9 @@ Resources:
       TemplateURL: !Sub ${SourceS3BucketURI}${SourceS3BucketName}/vpc-nested.yml
       Parameters:
         EnvironmentName: !Ref EnvironmentName
-        VpcCIDR: !Ref VpcCIDR
-        PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
-        PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
+        VpcCIDR: !FindInMap [CIDRBlocks, VPC, Range]
+        PublicSubnet1CIDR: !FindInMap [CIDRBlocks, Public, Subnet1]
+        PublicSubnet2CIDR: !FindInMap [CIDRBlocks, Public, Subnet2]
 
   MgrENI:
     Type: AWS::CloudFormation::Stack
@@ -124,7 +110,7 @@ Resources:
         SSHIngressSecurityGroup: !GetAtt VPCStack.Outputs.SSHIngressSecurityGroup
         WebIngressSecurityGroup: !GetAtt VPCStack.Outputs.WebIngressSecurityGroup
         PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
-        PrivateIP: !Ref ManagerPrivateIP
+        PrivateIP: !FindInMap [IPAddresses, Manager, PrivateIP] 
 
   DockerMgr:
     Type: AWS::CloudFormation::Stack
@@ -135,8 +121,8 @@ Resources:
         MgrENI: !GetAtt MgrENI.Outputs.MgrENI
         InstanceType: !Ref DockerManagerInstanceType
         KeyName: !Ref InstanceKeypairName
-        DockerAMI: !Ref DockerAMIId
-        MgrPrivateIP: !Ref ManagerPrivateIP
+        DockerAMI: !FindInMap [LinuxBaseAMI, !Ref "AWS::Region", AmazonLinux2]
+        MgrPrivateIP: !FindInMap [IPAddresses, Manager, PrivateIP] 
 
   WorkerNodeLaunchTemplate:
     Type: AWS::CloudFormation::Stack
@@ -150,7 +136,7 @@ Resources:
         PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
         InstanceType: !Ref DockerWorkerInstanceType
         KeyName: !Ref InstanceKeypairName
-        DockerAMI: !Ref DockerAMIId
+        DockerAMI: !FindInMap [LinuxBaseAMI, !Ref "AWS::Region", AmazonLinux2]
 
   ASGGroup:
     DependsOn: 
@@ -218,6 +204,10 @@ Resources:
         ALBAddr: !GetAtt DemoALB.Outputs.ALBAddr
         ALBZoneId: !GetAtt DemoALB.Outputs.ALBZoneId
         EnvironmentName: !Ref EnvironmentName
-        R53HostedZoneId: !Ref R53HostedZoneId
-        R53Domain: !Ref R53HostedZoneDomain
+        R53HostedZoneId: !FindInMap [Route53, HostedZone, ID]
+        R53Domain: !FindInMap [Route53, HostedZone, Domain]
 
+Outputs:
+  WebsiteURI:
+    Description: Website URL
+    Value: !Sub http://${DNSRecord.Outputs.SiteDNS}/
