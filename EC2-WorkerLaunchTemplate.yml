@@ -5,18 +5,22 @@ Parameters:
   EnvironmentName:
     Type: String
   DockerSecurityGroup:
-    Type: String
+    Type: AWS::EC2::SecurityGroup::Id
   SSHIngressSecurityGroup:
-    Type: String
+    Type: AWS::EC2::SecurityGroup::Id
   WebIngressSecurityGroup:
-    Type: String
+    Type: AWS::EC2::SecurityGroup::Id
   PublicSubnet1:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
   InstanceType:
     Type : String
     Default: t3a.nano
+    AllowedValues: 
+      - t3a.nano
+      - t3a.micro
+      - t3a.small
   KeyName:
-    Type: String
+    Type: AWS::EC2::KeyPair::KeyName
   DockerAMI:
     Type: String
 

@@ -69,7 +69,7 @@ Parameters:
 
   InstanceKeypairName:
     Description: Keypair for instances
-    Type: String
+    Type: AWS::EC2::KeyPair::KeyName
     Default: automation
 
   JenkinsEIPAllocation:

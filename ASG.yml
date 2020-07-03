@@ -11,9 +11,9 @@ Parameters:
   NumberOfWorkerNodes:
     Type: Number
   PublicSubnet1:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
   PublicSubnet2:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
 
 Resources:
   ASGGroup:

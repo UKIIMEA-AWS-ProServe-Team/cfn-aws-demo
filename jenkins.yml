@@ -3,19 +3,23 @@ Parameters:
   EnvironmentName:
     Type: String
   PublicSubnet2:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
   SSHIngressSecurityGroup:
-    Type: String
+    Type: AWS::EC2::SecurityGroup::Id
   VPCId:
-    Type: String
+    Type: AWS::EC2::VPC::Id
   AMIId:
     Type : 'AWS::SSM::Parameter::Value<String>'
     Default: JenkinsAMIId
   InstanceType:
     Type : String
     Default: t3a.small
+    AllowedValues: 
+      - t3a.nano
+      - t3a.micro
+      - t3a.small
   KeyName:
-    Type: String
+    Type: AWS::EC2::KeyPair::KeyName
   JenkinsIPAllocationId:
     Type: String
 

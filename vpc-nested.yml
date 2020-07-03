@@ -98,8 +98,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       Tags:
-        -
-          Key: "Name"
+        - Key: "Name"
           Value: !Join ["-", [!Ref EnvironmentName, no-ingress-sg]]
       GroupName: !Sub ${EnvironmentName}-no-ingress-sg
       GroupDescription: "Security group with no ingress rule"
@@ -109,8 +108,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties: 
       Tags:
-        -
-          Key: "Name"
+        - Key: "Name"
           Value: !Join ["-", [!Ref EnvironmentName, ssh-sg]]
       VpcId: !Ref VPC
       GroupDescription: "Security Group to allow SSH Ingress"
@@ -126,8 +124,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       Tags:
-        -
-          Key: Name
+        - Key: Name
           Value: !Join ["-", [!Ref EnvironmentName, web-sg]]
       VpcId: !Ref VPC
       GroupDescription: "Security Group to allow common Web Ports"
@@ -148,8 +145,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       Tags:
-        -
-          Key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}-docker-sg
       VpcId: !Ref VPC
       GroupDescription: "Security Group to allow Docker Ports"

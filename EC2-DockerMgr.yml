@@ -4,15 +4,19 @@ Description: "Docker Manager Node"
 
 Parameters:
   MgrENI:
-    Description: Static private IP address for Mgr Node
+    Description: Network interface to provide static private IP address for Mgr Node
     Type: String
   EnvironmentName:
     Type: String
   InstanceType:
     Type : String
     Default: t3a.nano
+    AllowedValues: 
+      - t3a.nano
+      - t3a.micro
+      - t3a.small
   KeyName:
-    Type: String
+    Type: AWS::EC2::KeyPair::KeyName
   DockerAMI:
     Type: String
   MgrPrivateIP:

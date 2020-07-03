@@ -6,13 +6,13 @@ Parameters:
     Description: Environment Name
     Type: String
   DockerSecurityGroup:
-    Type: String
+    Type: AWS::EC2::SecurityGroup::Id
   SSHIngressSecurityGroup:
-    Type: String
+    Type: AWS::EC2::SecurityGroup::Id
   WebIngressSecurityGroup:
-    Type: String
+    Type: AWS::EC2::SecurityGroup::Id
   PublicSubnet1:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
   PrivateIP:
     Type: String
 
