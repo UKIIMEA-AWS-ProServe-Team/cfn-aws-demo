@@ -47,7 +47,7 @@ Parameters:
   DockerManagerInstanceType:
     Description: Docker manager instance type
     Type: String
-    Default: t3a.small
+    Default: t3a.nano
     AllowedValues: 
       - t3a.nano
       - t3a.micro
@@ -56,7 +56,7 @@ Parameters:
   DockerWorkerInstanceType:
     Description: Docker worker instance type
     Type: String
-    Default: t3a.small
+    Default: t3a.nano
     AllowedValues: 
       - t3a.nano
       - t3a.micro
