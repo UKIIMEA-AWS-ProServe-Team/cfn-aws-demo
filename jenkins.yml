@@ -62,10 +62,6 @@ Resources:
           FromPort: '8443'
           ToPort: '8443'
           CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: '22'
-          ToPort: '22'
-          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: !Sub ${EnvironmentName}-jenkins-sg
@@ -75,6 +71,7 @@ Resources:
     Properties: 
       GroupSet: 
         - !GetAtt JenkinsSecurityGroup.GroupId
+        - !Ref SSHIngressSecurityGroup
       SubnetId: !Ref PublicSubnet2
       Tags:
         - Key: Name
