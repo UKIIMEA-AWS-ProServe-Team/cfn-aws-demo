@@ -15,35 +15,29 @@ Parameters:
     Default: 2
     MaxValue: 10
 
-  SourceS3BucketName:
-    Description: Source S3 bucket name
-    Type: String
-    Default: cfn-demo-ianp
-
-  SourceS3BucketURI:
-    Description: Base URI for source S3 bucket location
-    Type: String
-    Default: https://s3-eu-west-2.amazonaws.com/
 Mappings:
   LinuxBaseAMI:
     eu-west-1: 
       AmazonLinux2: ami-0ea3405d2d2522162
     eu-west-2: 
       AmazonLinux2: ami-032598fcc7e9d1c7a
+
   Route53:
     HostedZone:
       Domain: cpsdxc.co.uk
       ID: ZR4URMES3MOE4
+
   CIDRBlocks:
     VPC:
       Range: 10.192.0.0/16
     Public:
       Subnet1: 10.192.10.0/24
       Subnet2: 10.192.11.0/24
+
   IPAddresses:
     Manager:
       PrivateIP: 10.192.10.20
-    
+
   Instance:
     Jenkins: 
       Type: t3a.small
@@ -70,7 +64,7 @@ Resources:
   VPCStack:
     Type: AWS::CloudFormation::Stack
     Properties :
-      TemplateURL: !Sub ${SourceS3BucketURI}${SourceS3BucketName}/vpc-nested.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], vpc-nested.yml]]
       Parameters:
         EnvironmentName: !Ref EnvironmentName
         VpcCIDR: !FindInMap [CIDRBlocks, VPC, Range]
@@ -80,7 +74,7 @@ Resources:
   MgrENI:
     Type: AWS::CloudFormation::Stack
     Properties: 
-      TemplateURL: !Sub ${SourceS3BucketURI}${SourceS3BucketName}/MgrENI.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], MgrENI.yml]]
       Parameters:
         EnvironmentName: !Ref EnvironmentName
         DockerSecurityGroup: !GetAtt VPCStack.Outputs.DockerSecurityGroup
@@ -92,7 +86,7 @@ Resources:
   DockerMgr:
     Type: AWS::CloudFormation::Stack
     Properties: 
-      TemplateURL: !Sub ${SourceS3BucketURI}${SourceS3BucketName}/EC2-DockerMgr.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], EC2-DockerMgr.yml]]
       Parameters:
         EnvironmentName: !Ref EnvironmentName
         MgrENI: !GetAtt MgrENI.Outputs.MgrENI
@@ -104,7 +98,7 @@ Resources:
   WorkerNodeLaunchTemplate:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub ${SourceS3BucketURI}${SourceS3BucketName}/EC2-WorkerLaunchTemplate.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], EC2-WorkerLaunchTemplate.yml]]
       Parameters:
         EnvironmentName: !Ref EnvironmentName
         DockerSecurityGroup: !GetAtt VPCStack.Outputs.DockerSecurityGroup
@@ -120,7 +114,7 @@ Resources:
       - DockerMgr
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub ${SourceS3BucketURI}${SourceS3BucketName}/ASG.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], ASG.yml]]
       Parameters:
         EnvironmentName: !Ref EnvironmentName
         NumberOfWorkerNodes: !Ref NumberOfWorkerNodes
@@ -132,7 +126,7 @@ Resources:
   DemoALB:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub ${SourceS3BucketURI}${SourceS3BucketName}/ALB.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], ALB.yml]]
       Parameters:
         PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
         PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
@@ -144,7 +138,7 @@ Resources:
     DependsOn: LambdaFunc
     Type: AWS::CloudFormation::Stack
     Properties: 
-      TemplateURL: !Sub ${SourceS3BucketURI}${SourceS3BucketName}/jenkins.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], jenkins.yml]]
       Parameters:
         EnvironmentName: !Ref EnvironmentName
         PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
@@ -156,7 +150,7 @@ Resources:
   LambdaFunc:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub ${SourceS3BucketURI}${SourceS3BucketName}/lambda.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], lambda.yml]]
       Parameters:
         EnvironmentName: !Ref EnvironmentName
         S3BucketName: !FindInMap [Source, !Ref "AWS::Region", BucketName]
@@ -166,14 +160,14 @@ Resources:
     DependsOn: JenkinsInstance
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub ${SourceS3BucketURI}${SourceS3BucketName}/lambdaexec.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], lambdaexec.yml]]
       Parameters:
         LambdaArn: !GetAtt LambdaFunc.Outputs.LambdaArn
 
   DNSRecord:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub ${SourceS3BucketURI}${SourceS3BucketName}/dnsrecord.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], dnsrecord.yml]]
       Parameters:
         ALBAddr: !GetAtt DemoALB.Outputs.ALBAddr
         ALBZoneId: !GetAtt DemoALB.Outputs.ALBZoneId
