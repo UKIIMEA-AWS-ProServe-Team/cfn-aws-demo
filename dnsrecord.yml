@@ -18,9 +18,12 @@ Parameters:
   R53Domain:
     Description: The Hosted Zone Domain
     Type: String
+  JenkinsIp:
+    Description: Jenkins Public IP Address
+    Type: String
 
 Resources:
-  DNSRecordSet:
+  SiteDNSRecordSet:
     Type: AWS::Route53::RecordSet
     Properties: 
       AliasTarget: 
@@ -30,8 +33,20 @@ Resources:
       HostedZoneId: !Ref R53HostedZoneId
       Name: !Sub ${EnvironmentName}.${R53Domain}
       Type: A
+  JenkinsDNSRecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties: 
+      ResourceRecords: 
+      - !Ref JenkinsIp
+      HostedZoneId: !Ref R53HostedZoneId
+      Name: !Sub jenkins-${EnvironmentName}.${R53Domain}
+      Type: A
+      TTL: 900
 
 Outputs:
   SiteDNS:
     Description: DNS name for application
-    Value: !Ref DNSRecordSet
+    Value: !Ref SiteDNSRecordSet
+  JenkinsDNS:
+    Description: DNS name for application
+    Value: !Ref JenkinsDNSRecordSet

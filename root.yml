@@ -47,11 +47,6 @@ Parameters:
     Type: AWS::EC2::KeyPair::KeyName
     Default: automation
 
-  JenkinsEIPAllocation:
-    Description: "Warning do not change - as been pre-created"
-    Type: String
-    Default: eipalloc-08c04d22327eb87e9
-
   SourceS3BucketName:
     Description: Source S3 bucket name
     Type: String
@@ -177,7 +172,6 @@ Resources:
         VPCId: !GetAtt VPCStack.Outputs.VPC
         InstanceType: !Ref JenkinsInstanceType
         KeyName: !Ref InstanceKeypairName
-        JenkinsIPAllocationId: !Ref JenkinsEIPAllocation
 
   LambdaFunc:
     Type: AWS::CloudFormation::Stack
@@ -206,8 +200,12 @@ Resources:
         EnvironmentName: !Ref EnvironmentName
         R53HostedZoneId: !FindInMap [Route53, HostedZone, ID]
         R53Domain: !FindInMap [Route53, HostedZone, Domain]
+        JenkinsIp: !GetAtt JenkinsInstance.Outputs.JenkinsPubIp
 
 Outputs:
   WebsiteURI:
     Description: Website URL
     Value: !Sub http://${DNSRecord.Outputs.SiteDNS}/
+  JenkinsURI:
+    Description: Jenins Management URL
+    Value: !Sub http://${DNSRecord.Outputs.JenkinsDNS}:8080/

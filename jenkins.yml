@@ -20,8 +20,6 @@ Parameters:
       - t3a.small
   KeyName:
     Type: AWS::EC2::KeyPair::KeyName
-  JenkinsIPAllocationId:
-    Type: String
 
 Resources:
 
@@ -76,13 +74,6 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${EnvironmentName}-JenkinsENI
-
-  # This is pre-existing - if EIP is deleted will need AllocationId updating      
-  JenkinsEIPAssoc:        
-    Type: AWS::EC2::EIPAssociation
-    Properties: 
-      AllocationId: !Ref JenkinsIPAllocationId
-      InstanceId: !Ref JenkinsInstance
 
 Outputs:
   JenkinsPubIp:
