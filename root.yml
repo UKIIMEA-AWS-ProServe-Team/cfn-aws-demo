@@ -104,7 +104,6 @@ Resources:
         DockerSecurityGroup: !GetAtt VPCStack.Outputs.DockerSecurityGroup
         SSHIngressSecurityGroup: !GetAtt VPCStack.Outputs.SSHIngressSecurityGroup
         WebIngressSecurityGroup: !GetAtt VPCStack.Outputs.WebIngressSecurityGroup
-        # PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
         InstanceType: !FindInMap [Instance, DockerWorker, Type]
         KeyName: !FindInMap [Instance, DockerWorker, Keypair]
         DockerAMI: !FindInMap [LinuxBaseAMI, !Ref "AWS::Region", AmazonLinux2]
