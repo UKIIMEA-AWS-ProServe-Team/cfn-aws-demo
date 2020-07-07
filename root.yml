@@ -15,38 +15,6 @@ Parameters:
     Default: 2
     MaxValue: 10
 
-  JenkinsInstanceType:
-    Description: Jenkins instance type
-    Type: String
-    Default: t3a.small
-    AllowedValues: 
-      - t3a.nano
-      - t3a.micro
-      - t3a.small
-
-  DockerManagerInstanceType:
-    Description: Docker manager instance type
-    Type: String
-    Default: t3a.nano
-    AllowedValues: 
-      - t3a.nano
-      - t3a.micro
-      - t3a.small
-
-  DockerWorkerInstanceType:
-    Description: Docker worker instance type
-    Type: String
-    Default: t3a.nano
-    AllowedValues: 
-      - t3a.nano
-      - t3a.micro
-      - t3a.small
-
-  InstanceKeypairName:
-    Description: Keypair for instances
-    Type: AWS::EC2::KeyPair::KeyName
-    Default: automation
-
   SourceS3BucketName:
     Description: Source S3 bucket name
     Type: String
@@ -82,6 +50,16 @@ Mappings:
     Manager:
       PrivateIP: 10.192.10.20
     
+  Instance:
+    Jenkins: 
+      Type: t3a.small
+      Keypair: automation
+    DockerManager:  
+      Type: t3a.nano
+      Keypair: automation
+    DockerWorker:  
+      Type: t3a.nano
+      Keypair: automation
 
 Resources:
 
@@ -114,8 +92,8 @@ Resources:
       Parameters:
         EnvironmentName: !Ref EnvironmentName
         MgrENI: !GetAtt MgrENI.Outputs.MgrENI
-        InstanceType: !Ref DockerManagerInstanceType
-        KeyName: !Ref InstanceKeypairName
+        InstanceType: !FindInMap [Instance, DockerManager, Type]
+        KeyName: !FindInMap [Instance, DockerManager, Keypair]
         DockerAMI: !FindInMap [LinuxBaseAMI, !Ref "AWS::Region", AmazonLinux2]
         MgrPrivateIP: !FindInMap [IPAddresses, Manager, PrivateIP] 
 
@@ -129,8 +107,8 @@ Resources:
         SSHIngressSecurityGroup: !GetAtt VPCStack.Outputs.SSHIngressSecurityGroup
         WebIngressSecurityGroup: !GetAtt VPCStack.Outputs.WebIngressSecurityGroup
         PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
-        InstanceType: !Ref DockerWorkerInstanceType
-        KeyName: !Ref InstanceKeypairName
+        InstanceType: !FindInMap [Instance, DockerWorker, Type]
+        KeyName: !FindInMap [Instance, DockerWorker, Keypair]
         DockerAMI: !FindInMap [LinuxBaseAMI, !Ref "AWS::Region", AmazonLinux2]
 
   ASGGroup:
@@ -170,8 +148,8 @@ Resources:
         PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
         SSHIngressSecurityGroup: !GetAtt VPCStack.Outputs.SSHIngressSecurityGroup
         VPCId: !GetAtt VPCStack.Outputs.VPC
-        InstanceType: !Ref JenkinsInstanceType
-        KeyName: !Ref InstanceKeypairName
+        InstanceType: !FindInMap [Instance, Jenkins, Type]
+        KeyName: !FindInMap [Instance, Jenkins, Keypair]
 
   LambdaFunc:
     Type: AWS::CloudFormation::Stack
