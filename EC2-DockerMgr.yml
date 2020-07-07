@@ -42,7 +42,7 @@ Resources:
     Properties:
       NetworkInterfaces:
         - NetworkInterfaceId: !Ref MgrENI
-          DeviceIndex: 0
+          DeviceIndex: "0"
       IamInstanceProfile:
         !Ref MyProfile
       ImageId: !Ref DockerAMI

@@ -185,7 +185,7 @@ Resources:
         #   ToPort: 7946
         #   CidrIp: !Ref VpcCIDR
         #   Description: "Container Network Discovery"
-        - IpProtocol: -1
+        - IpProtocol: "-1"
           CidrIp: !Ref VpcCIDR
           Description: "Quick override to allow testing from Jenkins"
 

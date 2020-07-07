@@ -36,7 +36,7 @@ Resources:
       KeyName: !Ref KeyName
       NetworkInterfaces:
         - NetworkInterfaceId: !Ref JenkinsENI
-          DeviceIndex: 0
+          DeviceIndex: "0"
       Tags:
         - Key: Name
           Value: !Sub ${EnvironmentName}-Jenkins
@@ -55,12 +55,12 @@ Resources:
       VpcId: !Ref VPCId
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: '8080'
-          ToPort: '8080'
+          FromPort: 8080
+          ToPort: 8080
           CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
-          FromPort: '8443'
-          ToPort: '8443'
+          FromPort: 8443
+          ToPort: 8443
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name

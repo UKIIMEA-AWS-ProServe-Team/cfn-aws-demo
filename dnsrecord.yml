@@ -25,7 +25,7 @@ Resources:
     Properties: 
       AliasTarget: 
         DNSName: !Ref ALBAddr
-        EvaluateTargetHealth: "false"
+        EvaluateTargetHealth: false
         HostedZoneId: !Ref ALBZoneId
       HostedZoneId: !Ref R53HostedZoneId
       Name: !Sub ${EnvironmentName}.${R53Domain}
