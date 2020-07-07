@@ -110,7 +110,7 @@ Resources:
         DockerSecurityGroup: !GetAtt VPCStack.Outputs.DockerSecurityGroup
         SSHIngressSecurityGroup: !GetAtt VPCStack.Outputs.SSHIngressSecurityGroup
         WebIngressSecurityGroup: !GetAtt VPCStack.Outputs.WebIngressSecurityGroup
-        PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
+        # PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
         InstanceType: !FindInMap [Instance, DockerWorker, Type]
         KeyName: !FindInMap [Instance, DockerWorker, Keypair]
         DockerAMI: !FindInMap [LinuxBaseAMI, !Ref "AWS::Region", AmazonLinux2]
@@ -118,8 +118,6 @@ Resources:
   ASGGroup:
     DependsOn: 
       - DockerMgr
-      - DemoALB
-      - WorkerNodeLaunchTemplate
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub ${SourceS3BucketURI}${SourceS3BucketName}/ASG.yml
