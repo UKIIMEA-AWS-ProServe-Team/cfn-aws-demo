@@ -9,7 +9,7 @@ Parameters:
   VPCId:
     Type: AWS::EC2::VPC::Id
   AMIId:
-    Type : 'AWS::SSM::Parameter::Value<String>'
+    Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: JenkinsAMIId
   InstanceType:
     Type : String

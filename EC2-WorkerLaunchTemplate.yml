@@ -20,7 +20,7 @@ Parameters:
   KeyName:
     Type: AWS::EC2::KeyPair::KeyName
   DockerAMI:
-    Type: String
+    Type: AWS::EC2::Image::Id
 
 Resources:
   WorkerNodeLaunchTemplate:
