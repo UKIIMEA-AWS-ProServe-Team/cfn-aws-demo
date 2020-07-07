@@ -24,12 +24,6 @@ Parameters:
     Description: Base URI for source S3 bucket location
     Type: String
     Default: https://s3-eu-west-2.amazonaws.com/
-  
-  LambdaFunctionName:
-    Description: Lambda function, zip, etc name
-    Type: String
-    Default: amicreate
-
 Mappings:
   LinuxBaseAMI:
     eu-west-1: 
@@ -60,6 +54,16 @@ Mappings:
     DockerWorker:  
       Type: t3a.nano
       Keypair: automation
+
+  Lambda:
+    Function:
+      Name: amicreate
+
+  Source:
+    eu-west-2: 
+      BucketName: cfn-demo-ianp
+      Location: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp
+      
 
 Resources:
 
@@ -157,8 +161,8 @@ Resources:
       TemplateURL: !Sub ${SourceS3BucketURI}${SourceS3BucketName}/lambda.yml
       Parameters:
         EnvironmentName: !Ref EnvironmentName
-        S3BucketName: !Ref SourceS3BucketName
-        LambdaZipName: !Ref LambdaFunctionName
+        S3BucketName: !FindInMap [Source, !Ref "AWS::Region", BucketName]
+        LambdaZipName: !FindInMap [Lambda, Function, Name]
 
   LambdaExec:
     DependsOn: JenkinsInstance
