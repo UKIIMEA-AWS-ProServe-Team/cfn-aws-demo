@@ -4,9 +4,22 @@ Description: "Docker Manager Node"
 
 Parameters:
   MgrENI:
-    Description: Static private IP address for Mgr Node
+    Description: Network interface to provide static private IP address for Mgr Node
     Type: String
   EnvironmentName:
+    Type: String
+  InstanceType:
+    Type : String
+    Default: t3a.nano
+    AllowedValues: 
+      - t3a.nano
+      - t3a.micro
+      - t3a.small
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+  DockerAMI:
+    Type: AWS::EC2::Image::Id
+  MgrPrivateIP:
     Type: String
 
 Resources:
@@ -29,12 +42,12 @@ Resources:
     Properties:
       NetworkInterfaces:
         - NetworkInterfaceId: !Ref MgrENI
-          DeviceIndex: 0
+          DeviceIndex: "0"
       IamInstanceProfile:
         !Ref MyProfile
-      ImageId: ami-0389b2a3c4948b1a0
-      InstanceType: t3a.nano
-      KeyName: automation
+      ImageId: !Ref DockerAMI
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
       CreditSpecification:
         CPUCredits: standard
       UserData:
@@ -43,7 +56,7 @@ Resources:
             #!/bin/bash -xe
             yum install -y docker jq;
             systemctl start docker;
-            echo $(docker swarm init --advertise-addr 10.192.10.20) >> /tmp/dockerjoin.txt;
+            echo $(docker swarm init --advertise-addr ${MgrPrivateIP}) >> /tmp/dockerjoin.txt;
             cat /tmp/dockerjoin.txt | sed 's/.*command: //' | sed 's/ To add.*$//' >> /tmp/join.txt;
             aws ssm put-parameter --name /SwarmJoinCmd --value "$(cat /tmp/join.txt)" --type String --region eu-west-2 --overwrite;
             usermod -aG docker ec2-user;
@@ -53,8 +66,7 @@ Resources:
             docker pull ianp5uk/train-schedule:latest;
             docker service create --name train-schedule --replicas 3 -p 80:3000 ianp5uk/train-schedule:latest;
       Tags:
-        -
-          Key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}-SwarmMgr
 
   MgrRole:
@@ -87,8 +99,7 @@ Resources:
                   - ssm:RemoveTagsFromResource
                 Resource: arn:aws:ssm:*:*:parameter/*
       Tags: 
-        -
-          Key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}-TempSSMRole
   
   MyProfile:

@@ -3,14 +3,23 @@ Parameters:
   EnvironmentName:
     Type: String
   PublicSubnet2:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
   SSHIngressSecurityGroup:
-    Type: String
+    Type: AWS::EC2::SecurityGroup::Id
   VPCId:
-    Type: String
+    Type: AWS::EC2::VPC::Id
   AMIId:
-    Type : 'AWS::SSM::Parameter::Value<String>'
+    Type : 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: JenkinsAMIId
+  InstanceType:
+    Type : String
+    Default: t3a.small
+    AllowedValues: 
+      - t3a.nano
+      - t3a.micro
+      - t3a.small
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
 
 Resources:
 
@@ -21,17 +30,15 @@ Resources:
         Timeout: PT10M
     Properties:
       ImageId: !Ref AMIId
-      InstanceType: t3a.small
-      KeyName: automation
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
       NetworkInterfaces:
         - NetworkInterfaceId: !Ref JenkinsENI
-          DeviceIndex: 0
+          DeviceIndex: "0"
       Tags:
-        -
-          Key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}-Jenkins
-        -
-          Key: Backup1357
+        - Key: Backup1357
           Value: !Sub ${EnvironmentName}-AMI
       UserData:
         Fn::Base64:
@@ -46,20 +53,15 @@ Resources:
       VpcId: !Ref VPCId
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: '8080'
-          ToPort: '8080'
+          FromPort: 8080
+          ToPort: 8080
           CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
-          FromPort: '8443'
-          ToPort: '8443'
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: '22'
-          ToPort: '22'
+          FromPort: 8443
+          ToPort: 8443
           CidrIp: 0.0.0.0/0
       Tags:
-        -
-          Key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}-jenkins-sg
 
   JenkinsENI:
@@ -67,18 +69,11 @@ Resources:
     Properties: 
       GroupSet: 
         - !GetAtt JenkinsSecurityGroup.GroupId
+        - !Ref SSHIngressSecurityGroup
       SubnetId: !Ref PublicSubnet2
       Tags:
-        -
-          Key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}-JenkinsENI
-
-  # This is pre-existing - if EIP is deleted will need AllocationId updating      
-  JenkinsEIPAssoc:        
-    Type: AWS::EC2::EIPAssociation
-    Properties: 
-      AllocationId: eipalloc-08c04d22327eb87e9
-      InstanceId: !Ref JenkinsInstance
 
 Outputs:
   JenkinsPubIp:

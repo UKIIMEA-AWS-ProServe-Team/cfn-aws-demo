@@ -11,9 +11,9 @@ Parameters:
   NumberOfWorkerNodes:
     Type: Number
   PublicSubnet1:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
   PublicSubnet2:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
 
 Resources:
   ASGGroup:
@@ -27,7 +27,7 @@ Resources:
         LaunchTemplateId: !Ref WorkerNodeLaunchTemplate
         Version: '1'
       MinSize: !Ref NumberOfWorkerNodes
-      MaxSize: 10
+      MaxSize: "10"
       TargetGroupARNs:
         - !Ref ALBTargetGroup
     UpdatePolicy:
@@ -48,9 +48,9 @@ Resources:
     Type: AWS::AutoScaling::ScalingPolicy
     Properties:
       AutoScalingGroupName: !Ref ASGGroup
-      Cooldown: 150
+      Cooldown: "150"
       PolicyType: TargetTrackingScaling
       TargetTrackingConfiguration:
           PredefinedMetricSpecification: 
             PredefinedMetricType: ASGAverageCPUUtilization
-          TargetValue: '20'
+          TargetValue: 20

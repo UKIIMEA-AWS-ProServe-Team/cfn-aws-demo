@@ -15,147 +15,170 @@ Parameters:
     Default: 2
     MaxValue: 10
 
-  VpcCIDR:
-    Description: "** DO NOT CHANGE - USED AS CONSTANT **"
-    Type: String
-    Default: 10.192.0.0/16
+Mappings:
+  LinuxBaseAMI:
+    eu-west-1: 
+      AmazonLinux2: ami-0ea3405d2d2522162
+    eu-west-2: 
+      AmazonLinux2: ami-032598fcc7e9d1c7a
 
-  PublicSubnet1CIDR:
-    Description: "** DO NOT CHANGE - USED AS CONSTANT **"
-    Type: String
-    Default: 10.192.10.0/24
+  Route53:
+    HostedZone:
+      Domain: cpsdxc.co.uk
+      ID: ZR4URMES3MOE4
 
-  PublicSubnet2CIDR:
-    Description: "** DO NOT CHANGE - USED AS CONSTANT **"
-    Type: String
-    Default: 10.192.11.0/24
+  CIDRBlocks:
+    VPC:
+      Range: 10.192.0.0/16
+    Public:
+      Subnet1: 10.192.10.0/24
+      Subnet2: 10.192.11.0/24
+
+  IPAddresses:
+    Manager:
+      PrivateIP: 10.192.10.20
+
+  Instance:
+    Jenkins: 
+      Type: t3a.small
+      Keypair: automation
+    DockerManager:  
+      Type: t3a.nano
+      Keypair: automation
+    DockerWorker:  
+      Type: t3a.nano
+      Keypair: automation
+
+  Lambda:
+    Function:
+      Name: amicreate
+
+  Source:
+    eu-west-2: 
+      BucketName: cfn-demo-ianp
+      Location: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp
+      
 
 Resources:
 
   VPCStack:
     Type: AWS::CloudFormation::Stack
     Properties :
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/vpc-nested.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], vpc-nested.yml]]
       Parameters:
         EnvironmentName: !Ref EnvironmentName
-        VpcCIDR: !Ref VpcCIDR
-        PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
-        PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
+        VpcCIDR: !FindInMap [CIDRBlocks, VPC, Range]
+        PublicSubnet1CIDR: !FindInMap [CIDRBlocks, Public, Subnet1]
+        PublicSubnet2CIDR: !FindInMap [CIDRBlocks, Public, Subnet2]
 
   MgrENI:
     Type: AWS::CloudFormation::Stack
     Properties: 
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/MgrENI.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], MgrENI.yml]]
       Parameters:
         EnvironmentName: !Ref EnvironmentName
-        DockerSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.DockerSecurityGroup]
-        SSHIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
-        WebIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.WebIngressSecurityGroup]
-        PublicSubnet1:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
+        DockerSecurityGroup: !GetAtt VPCStack.Outputs.DockerSecurityGroup
+        SSHIngressSecurityGroup: !GetAtt VPCStack.Outputs.SSHIngressSecurityGroup
+        WebIngressSecurityGroup: !GetAtt VPCStack.Outputs.WebIngressSecurityGroup
+        PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
+        PrivateIP: !FindInMap [IPAddresses, Manager, PrivateIP] 
 
   DockerMgr:
     Type: AWS::CloudFormation::Stack
     Properties: 
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/EC2-DockerMgr.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], EC2-DockerMgr.yml]]
       Parameters:
         EnvironmentName: !Ref EnvironmentName
-        MgrENI:
-          Fn::GetAtt: [MgrENI, Outputs.MgrENI]
+        MgrENI: !GetAtt MgrENI.Outputs.MgrENI
+        InstanceType: !FindInMap [Instance, DockerManager, Type]
+        KeyName: !FindInMap [Instance, DockerManager, Keypair]
+        DockerAMI: !FindInMap [LinuxBaseAMI, !Ref "AWS::Region", AmazonLinux2]
+        MgrPrivateIP: !FindInMap [IPAddresses, Manager, PrivateIP] 
 
   WorkerNodeLaunchTemplate:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/EC2-WorkerLaunchTemplate.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], EC2-WorkerLaunchTemplate.yml]]
       Parameters:
         EnvironmentName: !Ref EnvironmentName
-        DockerSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.DockerSecurityGroup]
-        SSHIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
-        WebIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.WebIngressSecurityGroup]
-        PublicSubnet1:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
+        DockerSecurityGroup: !GetAtt VPCStack.Outputs.DockerSecurityGroup
+        SSHIngressSecurityGroup: !GetAtt VPCStack.Outputs.SSHIngressSecurityGroup
+        WebIngressSecurityGroup: !GetAtt VPCStack.Outputs.WebIngressSecurityGroup
+        InstanceType: !FindInMap [Instance, DockerWorker, Type]
+        KeyName: !FindInMap [Instance, DockerWorker, Keypair]
+        DockerAMI: !FindInMap [LinuxBaseAMI, !Ref "AWS::Region", AmazonLinux2]
 
   ASGGroup:
     DependsOn: 
       - DockerMgr
-      - DemoALB
-      - WorkerNodeLaunchTemplate
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/ASG.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], ASG.yml]]
       Parameters:
         EnvironmentName: !Ref EnvironmentName
         NumberOfWorkerNodes: !Ref NumberOfWorkerNodes
-        WorkerNodeLaunchTemplate: 
-          Fn::GetAtt: [WorkerNodeLaunchTemplate, Outputs.WorkerNodeLaunchTemplate]
-        PublicSubnet1:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
-        PublicSubnet2:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]
-        ALBTargetGroup:
-          Fn::GetAtt: [DemoALB, Outputs.ALBTargetGroup]
+        WorkerNodeLaunchTemplate: !GetAtt WorkerNodeLaunchTemplate.Outputs.WorkerNodeLaunchTemplate
+        PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
+        PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
+        ALBTargetGroup: !GetAtt DemoALB.Outputs.ALBTargetGroup
 
   DemoALB:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/ALB.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], ALB.yml]]
       Parameters:
-        PublicSubnet1:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet1]
-        PublicSubnet2:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]
-        WebIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.WebIngressSecurityGroup]
-        VPCId:
-           Fn::GetAtt: [VPCStack, Outputs.VPC]
+        PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
+        PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
+        WebIngressSecurityGroup: !GetAtt VPCStack.Outputs.WebIngressSecurityGroup
+        VPCId: !GetAtt VPCStack.Outputs.VPC
         EnvironmentName: !Ref EnvironmentName
 
   JenkinsInstance:
     DependsOn: LambdaFunc
     Type: AWS::CloudFormation::Stack
     Properties: 
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/jenkins.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], jenkins.yml]]
       Parameters:
-        EnvironmentName:
-          !Ref EnvironmentName
-        PublicSubnet2:
-          Fn::GetAtt: [VPCStack, Outputs.PublicSubnet2]
-        SSHIngressSecurityGroup:
-          Fn::GetAtt: [VPCStack, Outputs.SSHIngressSecurityGroup]
-        VPCId:
-          Fn::GetAtt: [VPCStack, Outputs.VPC]
+        EnvironmentName: !Ref EnvironmentName
+        PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
+        SSHIngressSecurityGroup: !GetAtt VPCStack.Outputs.SSHIngressSecurityGroup
+        VPCId: !GetAtt VPCStack.Outputs.VPC
+        InstanceType: !FindInMap [Instance, Jenkins, Type]
+        KeyName: !FindInMap [Instance, Jenkins, Keypair]
 
   LambdaFunc:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/lambda.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], lambda.yml]]
       Parameters:
-        EnvironmentName:
-          !Ref EnvironmentName
+        EnvironmentName: !Ref EnvironmentName
+        S3BucketName: !FindInMap [Source, !Ref "AWS::Region", BucketName]
+        LambdaZipName: !FindInMap [Lambda, Function, Name]
 
   LambdaExec:
     DependsOn: JenkinsInstance
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/lambdaexec.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], lambdaexec.yml]]
       Parameters:
-        LambdaArn:
-          Fn::GetAtt: [LambdaFunc, Outputs.LambdaArn]
+        LambdaArn: !GetAtt LambdaFunc.Outputs.LambdaArn
 
   DNSRecord:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3-eu-west-2.amazonaws.com/cfn-demo-ianp/dnsrecord.yml
+      TemplateURL: !Join [ "/", [!FindInMap [Source, !Ref "AWS::Region", Location], dnsrecord.yml]]
       Parameters:
-        ALBAddr:
-          Fn::GetAtt: [DemoALB, Outputs.ALBAddr]
-        ALBZoneId:
-          Fn::GetAtt: [DemoALB, Outputs.ALBZoneId]
-        EnvironmentName:
-          !Ref EnvironmentName
+        ALBAddr: !GetAtt DemoALB.Outputs.ALBAddr
+        ALBZoneId: !GetAtt DemoALB.Outputs.ALBZoneId
+        EnvironmentName: !Ref EnvironmentName
+        R53HostedZoneId: !FindInMap [Route53, HostedZone, ID]
+        R53Domain: !FindInMap [Route53, HostedZone, Domain]
+        JenkinsIp: !GetAtt JenkinsInstance.Outputs.JenkinsPubIp
+
+Outputs:
+  WebsiteURI:
+    Description: Website URL
+    Value: !Sub http://${DNSRecord.Outputs.SiteDNS}/
+  JenkinsURI:
+    Description: Jenins Management URL
+    Value: !Sub http://${DNSRecord.Outputs.JenkinsDNS}:8080/

@@ -31,27 +31,23 @@ Resources:
     Properties:
       HealthCheckIntervalSeconds: 15
       HealthCheckPath: /
-      HealthCheckPort: 80
+      HealthCheckPort: "80"
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       Matcher:
-        HttpCode: 200
+        HttpCode: "200"
       Name: !Sub ${EnvironmentName}-TgtGroup
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 4
       VpcId: !Ref VPCId
       Tags:
-        -
-          Key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}ALBTgtGroup
 
   ALBListener: # This is the ALB Listener used to access the Worker Node Web
     Type: AWS::ElasticLoadBalancingV2::Listener
-    DependsOn: 
-    - ALB 
-    - ALBTargetGroup
     Properties:
       DefaultActions:
       - Type: forward
@@ -62,9 +58,6 @@ Resources:
 
   ALBListenerRule: # The ALB Listener rule that forwards all traffic destined for the environment to the appropriate Target Group
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    DependsOn: 
-    - ALBListener
-    - ALBTargetGroup
     Properties:
       Actions:
       - Type: forward
