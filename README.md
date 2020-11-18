@@ -39,4 +39,3 @@ to remote repo on Github.
 5. Add notification of scaling events
 6. Add load testing to force scaling up
 7. Apply security best practices
-
