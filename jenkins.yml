@@ -1,3 +1,4 @@
+# test comment...
 AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   EnvironmentName:
@@ -20,6 +21,7 @@ Resources:
       ResourceSignal:
         Timeout: PT10M
     Properties:
+      IamInstanceProfile: JenkinsSSMProfile
       ImageId: !Ref AMIId
       InstanceType: t3a.small
       KeyName: automation
@@ -37,8 +39,16 @@ Resources:
         Fn::Base64:
           !Sub |
             #!/bin/bash -xe
-            /opt/aws/bin/cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
+            cfn-signal --exit-code 0 --resource JenkinsInstance --region ${AWS::Region} --stack ${AWS::StackName};
 
+  JenkinsInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      InstanceProfileName: JenkinsSSMProfile
+      Roles: 
+        - AmazonSSMRoleForInstancesQuickSetup
+  
+  
   JenkinsSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -77,7 +87,7 @@ Resources:
   JenkinsEIPAssoc:        
     Type: AWS::EC2::EIPAssociation
     Properties: 
-      AllocationId: eipalloc-08c04d22327eb87e9
+      AllocationId: eipalloc-0980b59229b252ab4
       InstanceId: !Ref JenkinsInstance
 
 Outputs:
