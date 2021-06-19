@@ -24,6 +24,16 @@ Resources:
       Name: !Sub ${EnvironmentName}.cpsdxc.co.uk
       Type: A
 
+  JenkinsRecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties: 
+      HostedZoneId: "ZR4URMES3MOE4"
+      Name: jenkins.cpsdxc.co.uk
+      Type: A
+      ResourceRecords: 
+      - 18.169.30.214
+      TTL: 86400
+
 Outputs:
   SiteDNS:
     Description: DNS name for application

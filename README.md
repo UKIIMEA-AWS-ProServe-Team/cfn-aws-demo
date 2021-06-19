@@ -30,6 +30,18 @@ to remote repo on Github.
 
 ### So a run might take 25 mins. At quiet periods runs <10 mins
 
+## Key setup info
+* Jenkins needs the following installing:
+  1. Docker and must add the user "jenkins" to the docker group
+  2. sshpass
+  3. Java Openjdk 8
+  4. Node.js
+* Use a multi-branch pipeline with parameters
+* Add credentials to:
+  1. Access github using a username/password
+  2. Access Dockerhub with id in Jenkins of docker_hub_login use a username/password
+  3. Access to Docker Swarm Master with id of swarm_login use ssh key
+
 ## Improvements Needed
 
 1. Error handling for Lambda function
