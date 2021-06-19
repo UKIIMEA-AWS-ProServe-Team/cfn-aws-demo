@@ -1,6 +1,6 @@
 # Cloudformation & CI/CD Demo
 
-## Demo purposes only - not for production - lax security.
+## Demo purposes only - not for production - lax security
 
 ### Deploys Docker environment + CI/CD using Jenkins + test web app
 
