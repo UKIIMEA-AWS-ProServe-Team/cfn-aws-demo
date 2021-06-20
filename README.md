@@ -43,12 +43,12 @@ to remote repo on Github.
   2. Access Dockerhub with id in Jenkins of docker_hub_login use a username/password
   3. Access to Docker Swarm Master with id of swarm_login use ssh key
 
-## Improvements Needed
+## Ideal
 
 1. Error handling for Lambda function
 2. Scale the Docker service with ec2
 3. Make region agnostic
-4. Understand how Terraform projects should be organised for best practice!
+4. Use ECS or Fargate etc
 5. Add notification of scaling events
 6. Add load testing to force scaling up
 7. Apply security best practices
