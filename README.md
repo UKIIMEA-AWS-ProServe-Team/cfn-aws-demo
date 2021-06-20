@@ -36,6 +36,7 @@ to remote repo on Github.
   2. sshpass
   3. Java Openjdk 8
   4. Node.js
+  5. Gradle
 * Use a multi-branch pipeline with parameters
 * Add credentials to:
   1. Access github using a username/password
