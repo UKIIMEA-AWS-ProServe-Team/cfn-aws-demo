@@ -73,10 +73,12 @@ def delete(event, context):
                 {
                     'DeviceName': '/dev/sda1', 
                     'Ebs': { 'DeleteOnTermination': True }
-                    'DeviceName': '/dev/xdva',
-                    'Ebs': {},
-                    'NoDevice': '',
                 },
+                # {
+                #     'DeviceName': '/dev/xdva',
+                #     'Ebs': {},
+                #     'NoDevice': ''
+                # },
             ],
             Description='Jenkins AMI from instance',
             InstanceId=jenkinsInstanceId,
