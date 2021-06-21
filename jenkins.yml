@@ -14,7 +14,7 @@ Parameters:
     Default: JenkinsAMIId
 
 Resources:
-
+  # DO NOT CHANGE name of resource "JenkinsInstance" - this is used by Lambda
   JenkinsInstance:
     Type: AWS::EC2::Instance
     CreationPolicy:
