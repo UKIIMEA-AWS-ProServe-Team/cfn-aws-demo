@@ -71,14 +71,9 @@ def delete(event, context):
         JenkinsAMI = ec.create_image(
             BlockDeviceMappings=[
                 {
-                    'DeviceName': '/dev/sda1', 
+                    'DeviceName': '/dev/xvda',
                     'Ebs': { 'DeleteOnTermination': True }
                 },
-                # {
-                #     'DeviceName': '/dev/xdva',
-                #     'Ebs': {},
-                #     'NoDevice': ''
-                # },
             ],
             Description='Jenkins AMI from instance',
             InstanceId=jenkinsInstanceId,
