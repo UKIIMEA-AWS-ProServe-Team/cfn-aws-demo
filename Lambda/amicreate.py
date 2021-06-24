@@ -50,7 +50,7 @@ def delete(event, context):
         
         # Check that stack had deployed successfully. If not exit and do not create new AMI
         # Stops a bad AMI being created
-        if stackList[0]['Status'] != "CREATE_COMPLETE":
+        if stackList['Status'] != "CREATE_COMPLETE":
             raise Exception('Stack failed to deploy correctly')
 
         # Extract jenkins stack id
