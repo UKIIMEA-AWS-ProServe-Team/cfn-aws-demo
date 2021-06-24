@@ -9,6 +9,7 @@ store = boto3.client('ssm')
 cloudformation = boto3.client('cloudformation')
 
 @helper.create
+
 @helper.update
 def no_op(_, __):
     pass
@@ -16,7 +17,7 @@ def no_op(_, __):
 @helper.delete
 def delete(event, context):
     # Event debug
-    print ("Event detail: ", json.dumps(event))
+    # print ("Event detail: ", json.dumps(event))
 
     # Catch exceptions in case there is a lookup error
     try:
@@ -48,11 +49,6 @@ def delete(event, context):
             print ("ERROR Returned Stacks: ", rootStackResources['StackResources'])
             raise Exception('Invalid root stack resources returned')
         
-        # Check that stack had deployed successfully. If not exit and do not create new AMI
-        # Stops a bad AMI being created
-        if stackList['Status'] != "CREATE_COMPLETE":
-            raise Exception('Stack failed to deploy correctly')
-
         # Extract jenkins stack id
         jenkinsStackId = rootStackResources['StackResources'][0]['PhysicalResourceId']
         print ('JenkinsStackId: ', jenkinsStackId)
