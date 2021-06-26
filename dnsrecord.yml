@@ -13,7 +13,7 @@ Parameters:
     Type: String
 
 Resources:
-  DNSRecordSet:
+  AppRecordSet:
     Type: AWS::Route53::RecordSet
     Properties: 
       AliasTarget: 
@@ -35,6 +35,10 @@ Resources:
       TTL: 86400
 
 Outputs:
-  SiteDNS:
+  SiteURL:
     Description: DNS name for application
-    Value: !Ref DNSRecordSet
+    Value: !Ref AppRecordSet
+
+  JenkinsURL:
+    Description: DNS name for Jenkins
+    Value: !Ref JenkinsRecordSet
